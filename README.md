@@ -1,35 +1,18 @@
-<!--
-http://www.apache.org/licenses/LICENSE-2.0.txt
+# snap collector plugin - iostat
 
-Copyright 2015 Intel Corporation
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-	
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-# Snap Collector Plugin - IOSTAT
-
-This plugin collects CPU statistics and device I/O statistics based on IOSTAT command tool which is available in every distribution of Linux.
+This plugin collects CPU statistics and device I/O statistics based on iostat command tool which is available in every distribution of Linux.
 
 Used for monitoring system input/output device loading by observing the time the devices are active in relation to their average transfer rates. 
 
 The intention is that data will be collected, aggregated and fed into graphing and analysis plugin that can be used to change system configuration to better balance the input/output load between physical disks.
 
-Project link: https://github.com/intelsdi-x/snap-plugin-collector-iostat
+This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
+
 
 1. [Getting Started](#getting-started)
   * [System Requirements](#system-requirements)
   * [Installation](#installation)
-  * [Configuration and Usage](configuration-and-usage)
+  * [Configuration and Usage](#configuration-and-usage)
 2. [Documentation](#documentation)
   * [Collected Metrics](#collected-metrics)
   * [Examples](#examples)
@@ -45,32 +28,48 @@ In order to use this plugin you need "iostat" to be installed on a Linux target 
 
 ### System Requirements
 
-Include:
-
-- systat package 
-- Linux OS
+* Linux OS
+* [sysstat package] (#installation)
+* [golang 1.4+](https://golang.org/dl/)
 
 The iostat command-line tool is part of the sysstat package available under the GNU General Public License.
 
 ### Installation
 
-a) **install sysstat package** from the official repositories simply use:
-- for Ubuntu, Debian: `sudo apt-get install sysstat`
-- for CentOS, Fedora: `sudo yum install sysstat`
+#### Install sysstat package:
+To install sysstat package from the official repositories simply use:
+- For Ubuntu, Debian: `sudo apt-get install sysstat`
+- For CentOS, Fedora: `sudo yum install sysstat`
 
-b) **compile plugin snap-plugin-collector-iostat**
+#### To build the plugin binary:
+Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
+Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
+
 ```
-make
+$ git clone https://github.com/<yourGithubID>/snap-plugin-collector-iostat.git
 ```
+
+Build the plugin by running make within the cloned repo:
+```
+$ make
+```
+This builds the plugin in `/build/rootfs/`
 
 ### Configuration and Usage
+* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
+* Ensure `$SNAP_PATH` is exported  
+`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
 
-By default, IOSTAT executable binary are searched in the directories named by the PATH environment. 
-Customize IOSTAT's path is also possible by setting environment variable `export SNAP_IOSTAT_PATH=/path/to/iostat/bin`
+By default iostat executable binary are searched in the directories named by the PATH environment. 
+Customize path to iostat executable is also possible by setting environment variable `export SNAP_IOSTAT_PATH=/path/to/iostat/bin`
 
 ## Documentation
 
-To learn more about iostat tool visit [http://linux.die.net/man/1/iostat] (http://linux.die.net/man/1/iostat)
+To learn more about this plugin and iostat tool, visit:
+
+* [linux iostat tool] (http://linux.die.net/man/1/iostat)
+* [snap iostat unit test](https://github.com/intelsdi-x/snap-plugin-collector-iostat/blob/master/iostat/iostat_test.go)
+* [snap iostat examples](#examples)
 
 ### Collected Metrics
 This plugin has the ability to gather the following metrics:
@@ -113,12 +112,12 @@ svctm | The average service time (in milliseconds) for I/O requests issued to th
 
 *Notes:*
 
-The total number of read and write requests issued to the device per second equals the number of transaction per second (tps=r_per_sec+w_per_sec).
+The total number of read and write requests issued to the device per second equals the number of transaction per second:	tps=r_per_sec+w_per_sec
 
 By default metrics are gathered once per second.
 
 ### Examples
-Example running  iostat collector and writing data to a file.
+Example running  iostat collector and writing data to file.
 
 In one terminal window, open the snap daemon:
 ```
@@ -286,32 +285,39 @@ NAMESPACE                                        DATA    TIMESTAMP              
 ```
 (Keys `ctrl+c` terminate task watcher)
 
-These data are published to file (in this example publishing to /tmp/published_iostat).
+These data are published to file and stored there (in this example in /tmp/published_iostat).
+
+Stop task:
+```
+$ $SNAP_PATH/bin/snapctl task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
+Task stopped:
+ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
+```
 
 ### Roadmap
-As we launch this plugin, we have a few items in mind for the next release
+This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:
 - [ ] Use channels instead "for" loop to execute iostat cmd
 
-If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues).
-
+If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
+and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-iostat/pulls).
 
 ## Community Support
-This repository is one of **many** plugins in the **snap framework**: a powerful telemetry agent framework.
-The full project is at https://github.com/intelsdi-x/snap.
+This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at 
+http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
+
 
 ## Contributing
 We love contributions! :heart_eyes:
 
-There's more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
+There is more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
-This is Open Source software released under the Apache 2.0 License. Please see the [LICENSE](LICENSE) file for full license details.
+
+[snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
 
 
 ## Acknowledgements
-List authors, co-authors and anyone you'd like to mention
 
 * Author: [Izabella Raulin](https://github.com/IzabellaRaulin)
 
-**Thank you!** Your contribution is incredibly important to us.
-
+And **thank you!** Your contribution, through code and participation, is incredibly important to us.
