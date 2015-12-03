@@ -42,14 +42,20 @@ To install sysstat package from the official repositories simply use:
 - For CentOS, Fedora: `sudo yum install sysstat`
 
 #### To build the plugin binary:
-Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
+This plugin uses snap plugin utilities packages which provide tools for plugin development. 											
+Fork https://github.com/intelsdi-x/snap-plugin-utilities  
+Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
+```
+$ git clone https://github.com/<yourGithubID>/snap-plugin-utilities.git
+```
+Then fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
 $ git clone https://github.com/<yourGithubID>/snap-plugin-collector-iostat.git
 ```
 
-Build the plugin by running make within the cloned repo:
+Build the snap iostat plugin by running make within the cloned repo:
 ```
 $ make
 ```
@@ -295,10 +301,7 @@ ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
 
 ### Roadmap
-This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:
-- [ ] Use channels instead "for" loop to execute iostat cmd
-
-If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
+As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
 and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-iostat/pulls).
 
 ## Community Support
