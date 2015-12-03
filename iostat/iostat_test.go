@@ -23,12 +23,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/intelsdi-x/snap-plugin-utilities/source"
 	"github.com/intelsdi-x/snap/control/plugin"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -128,8 +128,12 @@ func (m *MockCmdCall) lookPath(file string) (string, error) {
 	return m.lookPathOut.path, m.lookPathOut.err
 }
 
-func (m *MockCmdCall) execCommand(name string, arg ...string) *exec.Cmd {
-	return exec.Command(m.execCommandOut.name, m.execCommandOut.args...)
+func (m *MockCmdCall) execCommand(src source.Source, data chan interface{}, err chan error) {
+	mockSrc := source.Source{
+		Command: m.execCommandOut.name,
+		Args:    m.execCommandOut.args,
+	}
+	mockSrc.Generate(data, err)
 }
 
 //////////////////////////////////////////////////////////////////////////////
