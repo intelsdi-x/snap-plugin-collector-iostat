@@ -1,0 +1,5 @@
+{
+    "control": {
+        "cache_ttl": "5s"
+    }
+}
