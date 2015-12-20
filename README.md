@@ -119,9 +119,10 @@ svctm | The average service time (in milliseconds) for I/O requests issued to th
 
 *Notes:*
 
-The total number of read and write requests issued to the device per second equals the number of transaction per second:	tps=r_per_sec+w_per_sec
-
-By default metrics are gathered once per second.
+* The total number of read and write requests issued to the device per second equals the number of transaction per second	
+ * tps=r_per_sec+w_per_sec
+* The metrics are sampled over 1 second   
+ * If would like the results since boot you can set the config option `ReportSinceBoot` to `true` (see the sample task below)
 
 ### Examples
 Example running  iostat collector and writing data to file.
@@ -212,8 +213,7 @@ Create a task JSON file (exemplary file in examples/tasks/iostat-file.json):
             },
             "config": {
                 "/intel/linux/iostat": {
-                    "user": "root",
-                    "password": "secret"
+                    "ReportSinceBoot": false
                 }
             },
             "process": null,
