@@ -21,6 +21,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	// Import the snap plugin library
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat"
@@ -36,7 +37,15 @@ func main() {
 		panic(err)
 	}
 	plugin.Start(
-		plugin.NewPluginMeta(iostat.Name, iostat.Version, iostat.Type, []string{}, []string{plugin.SnapGOBContentType}, plugin.ConcurrencyCount(1)),
+		plugin.NewPluginMeta(
+			iostat.Name,
+			iostat.Version,
+			iostat.Type,
+			[]string{},
+			[]string{plugin.SnapGOBContentType},
+			plugin.Exclusive(true),
+			plugin.CacheTTL(1*time.Second),
+		),
 		p,
 		os.Args[1],
 	)
