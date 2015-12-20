@@ -2,7 +2,7 @@
     "version": 1,
     "schedule": {
         "type": "simple",
-        "interval": "2s"
+        "interval": "500ms"
     },
     "workflow": {
         "collect": {
@@ -30,8 +30,7 @@
             },
             "config": {
                 "/intel/linux/iostat": {
-                    "user": "root",
-                    "password": "secret"
+                    "ReportSinceBoot": false
                 }
             },
             "process": null,
