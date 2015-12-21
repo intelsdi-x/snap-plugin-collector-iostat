@@ -30,6 +30,7 @@ In order to use this plugin you need "iostat" to be installed on a Linux target 
 
 * Linux OS
 * [sysstat package] (#installation)
+ * sysstat 10.2 or greater
 * [golang 1.4+](https://golang.org/dl/)
 
 The iostat command-line tool is part of the sysstat package available under the GNU General Public License.
@@ -42,14 +43,20 @@ To install sysstat package from the official repositories simply use:
 - For CentOS, Fedora: `sudo yum install sysstat`
 
 #### To build the plugin binary:
-Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
+This plugin uses snap plugin utilities packages which provide tools for plugin development. 											
+Fork https://github.com/intelsdi-x/snap-plugin-utilities  
+Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
+```
+$ git clone https://github.com/<yourGithubID>/snap-plugin-utilities.git
+```
+Then fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
 $ git clone https://github.com/<yourGithubID>/snap-plugin-collector-iostat.git
 ```
 
-Build the plugin by running make within the cloned repo:
+Build the snap iostat plugin by running make within the cloned repo:
 ```
 $ make
 ```
@@ -112,9 +119,10 @@ svctm | The average service time (in milliseconds) for I/O requests issued to th
 
 *Notes:*
 
-The total number of read and write requests issued to the device per second equals the number of transaction per second:	tps=r_per_sec+w_per_sec
-
-By default metrics are gathered once per second.
+* The total number of read and write requests issued to the device per second equals the number of transaction per second	
+ * tps=r_per_sec+w_per_sec
+* The metrics are sampled over 1 second   
+ * If would like the results since boot you can set the config option `ReportSinceBoot` to `true` (see the sample task below)
 
 ### Examples
 Example running  iostat collector and writing data to file.
@@ -205,8 +213,7 @@ Create a task JSON file (exemplary file in examples/tasks/iostat-file.json):
             },
             "config": {
                 "/intel/linux/iostat": {
-                    "user": "root",
-                    "password": "secret"
+                    "ReportSinceBoot": false
                 }
             },
             "process": null,
@@ -295,10 +302,7 @@ ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
 
 ### Roadmap
-This plugin is in active development. As we launch this plugin, we have a few items in mind for the next release:
-- [ ] Use channels instead "for" loop to execute iostat cmd
-
-If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
+As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
 and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-iostat/pulls).
 
 ## Community Support

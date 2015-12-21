@@ -2,7 +2,7 @@
     "version": 1,
     "schedule": {
         "type": "simple",
-        "interval": "1s"
+        "interval": "500ms"
     },
     "workflow": {
         "collect": {
@@ -19,28 +19,7 @@
                 "/intel/linux/iostat/device/sda1/w_per_sec": {},
                 "/intel/linux/iostat/device/sda1/rkB_per_sec": {},
                 "/intel/linux/iostat/device/sda1/wkB_per_sec": {},
-                "/intel/linux/iostat/device/sda1/%util": {},
-                "/intel/linux/iostat/device/sdb/rrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb/wrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb/r_per_sec": {},
-                "/intel/linux/iostat/device/sdb/w_per_sec": {},
-                "/intel/linux/iostat/device/sdb/rkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb/wkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb/%util": {},
-                "/intel/linux/iostat/device/sdb1/rrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/wrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/r_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/w_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/rkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/wkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb1/%util": {},
-                "/intel/linux/iostat/device/sdb2/rrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/wrqm_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/r_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/w_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/rkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/wkB_per_sec": {},
-                "/intel/linux/iostat/device/sdb2/%util": {},
+                "/intel/linux/iostat/device/sda1/%util": {},                
                 "/intel/linux/iostat/device/ALL/rrqm_per_sec": {},
                 "/intel/linux/iostat/device/ALL/wrqm_per_sec": {},
                 "/intel/linux/iostat/device/ALL/r_per_sec": {},
@@ -51,15 +30,13 @@
             },
             "config": {
                 "/intel/linux/iostat": {
-                    "user": "root",
-                    "password": "secret"
+                    "ReportSinceBoot": false
                 }
             },
             "process": null,
             "publish": [
                 {
-                    "plugin_name": "file",
-                    "plugin_version": 3,
+                    "plugin_name": "file",                    
                     "config": {
                         "file": "/tmp/published_iostat"
                     }

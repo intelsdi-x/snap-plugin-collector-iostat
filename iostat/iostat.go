@@ -20,81 +20,65 @@ limitations under the License.
 package iostat
 
 import (
-	"bufio"
-	"errors"
-	"fmt"
+	"io"
 	"os"
-	"os/exec"
-	"path/filepath"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
+	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/command"
+	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/parser"
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
 	// Name of plugin
 	Name = "iostat"
 	// Version of plugin
-	Version = 1
+	Version = 2
 	// Type of plugin
 	Type = plugin.CollectorPluginType
-
-	ns_vendor = "intel"
-	ns_class  = "linux"
-	ns_type   = "iostat"
-
-	defaultTimeout              = 2 * time.Second
-	defaultEmptyTokenAcceptance = 5
 )
 
-//interfaces needed for mocking command output in iostat_test.go
-type Command interface {
-	getEnv(string) string
-	lookPath(string) (string, error)
-	execCommand(name string, arg ...string) *exec.Cmd
+type runsCmd interface {
+	Run(cmd string, args []string) (io.Reader, error)
+}
+
+type parses interface {
+	Parse(io.Reader) ([]string, map[string]float64, error)
 }
 
 // IOSTAT
 type IOSTAT struct {
-	keys      []string
-	data      map[string]interface{}
-	timestamp time.Time
-	mutex     *sync.RWMutex
-	cmdCall   Command
+	cmd    runsCmd
+	parser parses
 }
 
-type RealCmdCall struct{}
-
-// execCommand returns the Cmd struct to execute the named program with the given arguments
-func (c *RealCmdCall) execCommand(name string, arg ...string) *exec.Cmd {
-	return exec.Command(name, arg...)
-}
-
-func (c *RealCmdCall) getEnv(key string) string {
-	return os.Getenv(key)
-}
-
-func (c *RealCmdCall) lookPath(file string) (string, error) {
-	return exec.LookPath(file)
+// New returns snap-plugin-collector-iostat instance
+func New() (*IOSTAT, error) {
+	iostat := &IOSTAT{
+		cmd:    command.New(),
+		parser: parser.New(),
+	}
+	return iostat, nil
 }
 
 // CollectMetrics returns metrics from iostat
 func (iostat *IOSTAT) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
+	_, data, err := iostat.run(mts)
+	if err != nil {
+		return nil, err
+	}
 	metrics := make([]plugin.PluginMetricType, len(mts))
-	iostat.mutex.RLock()
-	defer iostat.mutex.RUnlock()
 	hostname, _ := os.Hostname()
 	for i, m := range mts {
-		if v, ok := iostat.data[joinNamespace(m.Namespace())]; ok {
+		if v, ok := data[joinNamespace(m.Namespace())]; ok {
 			metrics[i] = plugin.PluginMetricType{
 				Namespace_: m.Namespace(),
 				Data_:      v,
 				Source_:    hostname,
-				Timestamp_: iostat.timestamp,
+				Timestamp_: time.Now(),
 			}
 		}
 	}
@@ -103,10 +87,12 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.Pl
 
 // GetMetricTypes returns the metric types exposed by iostat
 func (iostat *IOSTAT) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
-	mts := make([]plugin.PluginMetricType, len(iostat.keys))
-	iostat.mutex.RLock()
-	defer iostat.mutex.RUnlock()
-	for i, k := range iostat.keys {
+	keys, _, err := iostat.run([]plugin.PluginMetricType{})
+	if err != nil {
+		return nil, err
+	}
+	mts := make([]plugin.PluginMetricType, len(keys))
+	for i, k := range keys {
 		mts[i] = plugin.PluginMetricType{Namespace_: strings.Split(strings.TrimPrefix(k, "/"), "/")}
 	}
 	return mts, nil
@@ -119,9 +105,27 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 }
 
 // Init initializes iostat plugin
-func (iostat *IOSTAT) init() (*IOSTAT, error) {
-	var cmd *exec.Cmd
+func (iostat *IOSTAT) run(mts []plugin.PluginMetricType) ([]string, map[string]float64, error) {
+	// TODO: reminder - remove these todo statements from the README (roadmap section) once
+	//       they are completed
+	// TODO: add validation that we are running sysstat version 10.2.0 or greater else print a
+	//       a warning or otherwise communicate to the user that they are potentially using an
+	//       unsupported/tested configuration
+	// TODO: allow the path and/or name of the command to be overriden through the pluginConfigType
 
+	reader, err := iostat.cmd.Run("iostat", getArgs(mts))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return iostat.parser.Parse(reader)
+}
+
+// updateArgs will add -y to the args provided to iostat telling iostat to report stats
+// since the machine has booted if the config ReportSinceBoot is present and True.  The
+// config for each metric being requested is the same so we need to check the config for
+// one metric being requested.
+func getArgs(mts []plugin.PluginMetricType) []string {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// 	IOstat command with interval 1 and options:
 	// 		-c	 	display the CPU utilization report
@@ -131,198 +135,31 @@ func (iostat *IOSTAT) init() (*IOSTAT, error) {
 	// 		-x		display extended statistics
 	// 		-k		display bandwidth statistics in kilobytes per second
 	// 		-t		print the time for each report displayed
+	//      -y      excludes report since last report (not since boot)
 	////////////////////////////////////////////////////////////////////////////////////////
+	iostatArgs := []string{"-c", "-d", "-p", "-g", "ALL", "-x", "-k", "-t"}
 
-	args := []string{"-c", "-d", "-p", "-g", "ALL", "-x", "-k", "-t", "1"}
-
-	if path := iostat.cmdCall.getEnv("SNAP_IOSTAT_PATH"); path != "" {
-		cmd = iostat.cmdCall.execCommand(filepath.Join(path, "iostat"), args...)
-	} else {
-		c, err := iostat.cmdCall.lookPath("iostat")
-		if err != nil {
-			fmt.Fprint(os.Stderr, "Unable to find iostat (\"systat\" package).  Ensure it's in your path or set SNAP_IOSTAT_PATH.")
-			panic(err)
-		}
-		cmd = iostat.cmdCall.execCommand(c, args...)
-	}
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating StdoutPipe", err)
-		return nil, err
-	}
-
-	// read the data from stdout
-	scanner := bufio.NewScanner(cmdReader)
-	title := true
-	emptyTokens := 0
-
-	go func() {
-		first := true
-		var statType string
-		var statSubType string
-		var statNames []string
-		var keys []string
-		var data []string
-		var key string
-
-		for scanner.Scan() {
-			line := removeEmptyStr(strings.Split(strings.TrimSpace(scanner.Text()), " "))
-			if len(line) == 0 {
-				// slice "line" is empty
-				emptyTokens++
-				if emptyTokens > defaultEmptyTokenAcceptance {
-					// more empty slice than acceptance level means error occurs, break the loop
-					break
-				}
-				continue
-			}
-			emptyTokens = 0
-
-			if title {
-				// skip the title line
-				title = false
-				continue
-			}
-			if first {
-				//next interval separated by a newline
-				first = false
-				keys = []string{}
-				data = []string{}
-
-				/////////////////////////////////////////////////////////////////////////////
-				// HERE: 	possible parsing output to get timestamp delivered by iostat
-				//			the default format: "MM/DD/YYYY HH:MM:SS AM/PM"
-				/////////////////////////////////////////////////////////////////////////////
-
-				// getting timestamp as current local time
-				// in format: "YYYY-MM-DD HH:MM:SS.fffffffff +/-HHMM TZ
-				iostat.timestamp = time.Now()
-				continue
-			}
-
-			if strings.HasSuffix(line[0], ":") {
-				if len(line) > 1 {
-					statType = strings.ToLower(strings.TrimSuffix(line[0], ":"))
-					statNames = replaceByPerSec(line[1:])
-					continue
+	reportLatest := true
+	if len(mts) > 0 && mts[0].Config() != nil && len(mts[0].Config().Table()) > 0 {
+		if m, ok := mts[0].Config().Table()["ReportSinceBoot"]; ok {
+			switch val := m.(type) {
+			case ctypes.ConfigValueBool:
+				if val.Value {
+					// return without adding '-y' to the args
+					// produces results since boot
+					reportLatest = false
 				}
 			}
-
-			if len(statNames) == 0 || len(statType) == 0 {
-				fmt.Fprintf(os.Stderr, "Invalid format of iostat output data\n")
-				break
-			}
-			if len(line) > len(statNames) {
-				// subType is defined
-				statSubType = line[0]
-				line = line[1:]
-			} else {
-				statSubType = ""
-			}
-
-			if len(line) == len(statNames) && len(statNames) != 0 {
-				for i, statName := range statNames {
-
-					if statSubType != "" {
-						key = statType + "/" + statSubType + "/" + statName
-					} else {
-						key = statType + "/" + statName
-					}
-
-					keys = append(keys, key)
-					data = append(data, line[i])
-				}
-			}
-
-			if strings.ToLower(statSubType) == "all" {
-				// all available metrics keys collected
-				first = true // for next scan skip first line
-
-				if len(iostat.keys) == 0 {
-
-					if len(keys) == 0 {
-						panic(errors.New("Error getting iostat metrics namespace"))
-					}
-
-					iostat.mutex.Lock()
-					iostat.keys = make([]string, len(keys))
-					for i, k := range keys {
-						iostat.keys[i] = joinNamespace(createNamespace(k))
-					}
-					iostat.mutex.Unlock()
-				}
-
-				if len(data) != len(iostat.keys) {
-					panic(errors.New("Invalid parsing iostat output"))
-				}
-
-				iostat.mutex.Lock()
-				for i, d := range data {
-					v, err := strconv.ParseFloat(strings.TrimSpace(d), 64)
-					if err == nil {
-						iostat.data[iostat.keys[i]] = v
-					} else {
-						fmt.Fprintln(os.Stderr, "Invalid metric value", err)
-						iostat.data[iostat.keys[i]] = nil
-					}
-
-				}
-				iostat.mutex.Unlock()
-			}
-		} // end of scanning
-	}() // end of go routine
-
-	err = cmd.Start()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error starting iostat", err)
-		return nil, fmt.Errorf(fmt.Sprintf("Error starting iostat command, err=%+v", err))
-	}
-	// we need to wait until we have our metric types
-	st := time.Now()
-	for {
-		iostat.mutex.RLock()
-		c := len(iostat.keys)
-		iostat.mutex.RUnlock()
-		if c > 0 {
-			break
-		}
-		if time.Since(st) > defaultTimeout {
-			return nil, fmt.Errorf("Timed out waiting for metrics from iostat")
 		}
 	}
-	return iostat, nil
+	if reportLatest {
+		// -y will disregards the summary since boot
+		// the "1" "1" arguments will produce 1 result over a 1 second interval
+		iostatArgs = append(iostatArgs, "-y", "1", "1")
+	}
+	return iostatArgs
 }
 
 func joinNamespace(ns []string) string {
 	return "/" + strings.Join(ns, "/")
-}
-
-// createNamespace returns namespace slice of strings composed from: vendor, class, type and ceph-daemon name
-func createNamespace(name string) []string {
-	return []string{ns_vendor, ns_class, ns_type, name}
-}
-
-// removeEmptyStr removes empty strings from slice
-func removeEmptyStr(slice []string) []string {
-	var result []string
-	for _, str := range slice {
-		if str != "" {
-			result = append(result, str)
-		}
-	}
-	return result
-}
-
-// replacePerSec turns "/s" into "_per_sec"
-func replaceByPerSec(slice []string) []string {
-	for i, str := range slice {
-		slice[i] = strings.Replace(str, "/s", "_per_sec", 1)
-	}
-	return slice
-}
-
-// New returns snap-plugin-collector-iostat instance
-func New() (*IOSTAT, error) {
-	iostat := &IOSTAT{mutex: &sync.RWMutex{}, data: map[string]interface{}{}, cmdCall: &RealCmdCall{}}
-	return iostat.init()
 }
