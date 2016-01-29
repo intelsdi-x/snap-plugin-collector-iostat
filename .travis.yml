@@ -1,8 +1,8 @@
 sudo: required
 language: go
 go:
-- 1.4.2
-- 1.5
+- 1.4.3
+- 1.5.3
 env:
   global:
     - SNAP_PLUGIN_SOURCE=/home/travis/gopath/src/github.com/intelsdi-x/snap-plugin-collector-iostat
@@ -10,7 +10,6 @@ env:
     - TEST=unit
 before_install:
 - go get github.com/tools/godep
-- go get github.com/intelsdi-x/snap
 - if [ ! -d $SNAP_PLUGIN_SOURCE ]; then mkdir -p $HOME/gopath/src/github.com/intelsdi-x; ln -s $TRAVIS_BUILD_DIR $SNAP_PLUGIN_SOURCE; fi # CI for forks not from intelsdi-x
 install:
 - export TMPDIR=$HOME/tmp
