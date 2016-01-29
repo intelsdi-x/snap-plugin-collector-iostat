@@ -36,7 +36,7 @@ const (
 	// Name of plugin
 	Name = "iostat"
 	// Version of plugin
-	Version = 2
+	Version = 3
 	// Type of plugin
 	Type = plugin.CollectorPluginType
 )
