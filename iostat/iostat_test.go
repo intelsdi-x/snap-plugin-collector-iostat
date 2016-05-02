@@ -29,6 +29,7 @@ import (
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/parser"
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 )
 
 // type Mock struct {
@@ -81,23 +82,23 @@ var mockCmdOut = `Linux 3.10.0-229.11.1.el7.x86_64 (gklab-108-166) 0/26/2015    
 
 		`
 
-var mockMts = []plugin.PluginMetricType{
-	plugin.PluginMetricType{
-		Namespace_: []string{"intel", "linux", "iostat", "device", "sda", "%util"},
+var mockMts = []plugin.MetricType{
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sda", "%util"),
 	},
-	plugin.PluginMetricType{
-		Namespace_: []string{"intel", "linux", "iostat", "device", "sdb", "%util"},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sdb", "%util"),
 	},
-	plugin.PluginMetricType{
-		Namespace_: []string{"intel", "linux", "iostat", "device", "ALL", "%util"},
-	},
-
-	plugin.PluginMetricType{
-		Namespace_: []string{"intel", "linux", "iostat", "device", "sda", "rkB_per_sec"},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "ALL", "%util"),
 	},
 
-	plugin.PluginMetricType{
-		Namespace_: []string{"intel", "linux", "iostat", "device", "sdb", "wkB_per_sec"},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sda", "rkB_per_sec"),
+	},
+
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sdb", "wkB_per_sec"),
 	},
 }
 
@@ -115,9 +116,9 @@ func TestIostat(t *testing.T) {
 	iostat := &IOSTAT{parser: parser.New(), cmd: &mockCmdRunner{}}
 
 	Convey("Given invalid metric namespace collect metrics", t, func() {
-		badMetrics := []plugin.PluginMetricType{
-			plugin.PluginMetricType{
-				Namespace_: []string{"intel", "linux", "iostat", "device", "sda", "bad"},
+		badMetrics := []plugin.MetricType{
+			plugin.MetricType{
+				Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sda", "bad"),
 			},
 		}
 		So(func() { iostat.CollectMetrics(badMetrics) }, ShouldNotPanic)
@@ -128,7 +129,6 @@ func TestIostat(t *testing.T) {
 		for _, r := range result {
 			So(r.Namespace(), ShouldBeEmpty)
 			So(r.Data(), ShouldBeNil)
-			So(r.Source(), ShouldBeEmpty)
 		}
 	})
 
@@ -145,7 +145,7 @@ func TestIostat(t *testing.T) {
 	})
 
 	Convey("Get metric types", t, func() {
-		mts, err := iostat.GetMetricTypes(plugin.PluginConfigType{})
+		mts, err := iostat.GetMetricTypes(plugin.ConfigType{})
 		So(err, ShouldBeNil)
 		So(len(mts), ShouldEqual, 123)
 	})
