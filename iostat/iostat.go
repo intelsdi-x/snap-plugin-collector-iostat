@@ -21,7 +21,6 @@ package iostat
 
 import (
 	"io"
-	"os"
 	"strings"
 	"time"
 
@@ -29,6 +28,7 @@ import (
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/parser"
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
@@ -36,7 +36,7 @@ const (
 	// Name of plugin
 	Name = "iostat"
 	// Version of plugin
-	Version = 3
+	Version = 4
 	// Type of plugin
 	Type = plugin.CollectorPluginType
 )
@@ -65,19 +65,18 @@ func New() (*IOSTAT, error) {
 }
 
 // CollectMetrics returns metrics from iostat
-func (iostat *IOSTAT) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
+func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
 	_, data, err := iostat.run(mts)
 	if err != nil {
 		return nil, err
 	}
-	metrics := make([]plugin.PluginMetricType, len(mts))
-	hostname, _ := os.Hostname()
+	metrics := make([]plugin.MetricType, len(mts))
 	for i, m := range mts {
-		if v, ok := data[joinNamespace(m.Namespace())]; ok {
-			metrics[i] = plugin.PluginMetricType{
+
+		if v, ok := data[m.Namespace().String()]; ok {
+			metrics[i] = plugin.MetricType{
 				Namespace_: m.Namespace(),
 				Data_:      v,
-				Source_:    hostname,
 				Timestamp_: time.Now(),
 			}
 		}
@@ -86,14 +85,14 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.Pl
 }
 
 // GetMetricTypes returns the metric types exposed by iostat
-func (iostat *IOSTAT) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
-	keys, _, err := iostat.run([]plugin.PluginMetricType{})
+func (iostat *IOSTAT) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error) {
+	keys, _, err := iostat.run([]plugin.MetricType{})
 	if err != nil {
 		return nil, err
 	}
-	mts := make([]plugin.PluginMetricType, len(keys))
+	mts := make([]plugin.MetricType, len(keys))
 	for i, k := range keys {
-		mts[i] = plugin.PluginMetricType{Namespace_: strings.Split(strings.TrimPrefix(k, "/"), "/")}
+		mts[i] = plugin.MetricType{Namespace_: core.NewNamespace(strings.Split(strings.TrimPrefix(k, "/"), "/")...)}
 	}
 	return mts, nil
 }
@@ -105,7 +104,7 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 }
 
 // Init initializes iostat plugin
-func (iostat *IOSTAT) run(mts []plugin.PluginMetricType) ([]string, map[string]float64, error) {
+func (iostat *IOSTAT) run(mts []plugin.MetricType) ([]string, map[string]float64, error) {
 	// TODO: reminder - remove these todo statements from the README (roadmap section) once
 	//       they are completed
 	// TODO: add validation that we are running sysstat version 10.2.0 or greater else print a
@@ -125,7 +124,7 @@ func (iostat *IOSTAT) run(mts []plugin.PluginMetricType) ([]string, map[string]f
 // since the machine has booted if the config ReportSinceBoot is present and True.  The
 // config for each metric being requested is the same so we need to check the config for
 // one metric being requested.
-func getArgs(mts []plugin.PluginMetricType) []string {
+func getArgs(mts []plugin.MetricType) []string {
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// 	IOstat command with interval 1 and options:
 	// 		-c	 	display the CPU utilization report
@@ -158,8 +157,4 @@ func getArgs(mts []plugin.PluginMetricType) []string {
 		iostatArgs = append(iostatArgs, "-y", "1", "1")
 	}
 	return iostatArgs
-}
-
-func joinNamespace(ns []string) string {
-	return "/" + strings.Join(ns, "/")
 }
