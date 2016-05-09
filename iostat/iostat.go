@@ -21,7 +21,6 @@ package iostat
 
 import (
 	"io"
-	"os"
 	"strings"
 	"time"
 
@@ -72,19 +71,12 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 		return nil, err
 	}
 	metrics := make([]plugin.MetricType, len(mts))
-	hostname, _ := os.Hostname()
 	for i, m := range mts {
-		tags := m.Tags()
-		if tags == nil {
-			tags = map[string]string{}
-		}
-		tags["hostname"] = hostname
 
 		if v, ok := data[m.Namespace().String()]; ok {
 			metrics[i] = plugin.MetricType{
 				Namespace_: m.Namespace(),
 				Data_:      v,
-				Tags_:      tags,
 				Timestamp_: time.Now(),
 			}
 		}
