@@ -82,23 +82,67 @@ var mockCmdOut = `Linux 3.10.0-229.11.1.el7.x86_64 (gklab-108-166) 0/26/2015    
 
 		`
 
-var mockMts = []plugin.MetricType{
+var staticMockMts = []plugin.MetricType{
 	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sda", "%util"),
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%user"),
 	},
 	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sdb", "%util"),
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%nice"),
 	},
 	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "ALL", "%util"),
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%system"),
 	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%iowait"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%steal"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "avg-cpu", "%idle"),
+	},
+}
 
+var dynamicMockMts = []plugin.MetricType{
 	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sda", "rkB_per_sec"),
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("%util"),
 	},
-
 	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device", "sdb", "wkB_per_sec"),
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("await"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("rrqm_per_sec"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("wrqm_per_sec"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("r_per_sec"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("w_per_sec"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("avgrq-sz"),
+	},
+	plugin.MetricType{
+		Namespace_: core.NewNamespace("intel", "linux", "iostat", "device").
+			AddDynamicElement("device_id", "Device ID").
+			AddStaticElement("avgqu-sz"),
 	},
 }
 
@@ -123,7 +167,6 @@ func TestIostat(t *testing.T) {
 		}
 		So(func() { iostat.CollectMetrics(badMetrics) }, ShouldNotPanic)
 		result, err := iostat.CollectMetrics(badMetrics)
-		So(len(result), ShouldEqual, len(badMetrics))
 		So(err, ShouldBeNil)
 
 		for _, r := range result {
@@ -132,22 +175,60 @@ func TestIostat(t *testing.T) {
 		}
 	})
 
-	Convey("Given valid metric namespace collect metrics", t, func() {
-		So(func() { iostat.CollectMetrics(mockMts) }, ShouldNotPanic)
-		result, err := iostat.CollectMetrics(mockMts)
-		So(len(result), ShouldEqual, len(mockMts))
+	Convey("Given valid static metric namespace collect metrics", t, func() {
+		So(func() { iostat.CollectMetrics(staticMockMts) }, ShouldNotPanic)
+		result, err := iostat.CollectMetrics(staticMockMts)
+		So(len(result), ShouldEqual, 6)
 		So(err, ShouldBeNil)
-		So(result[0].Data(), ShouldEqual, 0)
+		So(result[0].Data(), ShouldEqual, 0.50)
 		So(result[1].Data(), ShouldEqual, 0)
-		So(result[2].Data(), ShouldEqual, 0)
-		So(result[3].Data(), ShouldEqual, 0.01)
-		So(result[4].Data(), ShouldEqual, 15.34)
+		So(result[2].Data(), ShouldEqual, 0.13)
+		So(result[3].Data(), ShouldEqual, 0)
+		So(result[4].Data(), ShouldEqual, 0)
+		So(result[5].Data(), ShouldEqual, 99.37)
+	})
+
+	Convey("Given valid dynamic metric namespace collect metrics", t, func() {
+		So(func() { iostat.CollectMetrics(dynamicMockMts) }, ShouldNotPanic)
+		result, err := iostat.CollectMetrics(dynamicMockMts)
+		So(len(result), ShouldEqual, 123)
+		So(err, ShouldBeNil)
+
+		for _, r := range result {
+			_, ok := r.Data_.(float64)
+			So(ok, ShouldBeTrue)
+		}
 	})
 
 	Convey("Get metric types", t, func() {
 		mts, err := iostat.GetMetricTypes(plugin.ConfigType{})
 		So(err, ShouldBeNil)
-		So(len(mts), ShouldEqual, 123)
+		So(len(mts), ShouldEqual, 19)
+
+		namespaces := []string{}
+		for _, m := range mts {
+			namespaces = append(namespaces, m.Namespace().String())
+		}
+
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%idle")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%iowait")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%nice")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%steal")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%system")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/avg-cpu/%user")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/%util")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/avgqu-sz")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/avgrq-sz")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/await")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/r_await")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/r_per_sec")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/rkB_per_sec")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/rrqm_per_sec")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/svctm")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/w_await")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/w_per_sec")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/wkB_per_sec")
+		So(namespaces, ShouldContain, "/intel/linux/iostat/device/*/wrqm_per_sec")
 	})
 
 	Convey("Get config policy", t, func() {
