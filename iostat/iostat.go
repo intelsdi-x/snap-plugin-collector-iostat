@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -84,24 +85,35 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 
 		if ns[4].Value == "*" {
 			if ns[3].Value == deviceMetric {
-				for k, v := range data {
+				for k, _ := range data {
+					reg := ns[:3].String() + "/device/.*" + ns[5:].String()
+					matched, err := regexp.MatchString(reg, k)
+					if !matched {
+						continue
+					}
+					if err != nil {
+						return nil, fmt.Errorf("Error matching namespaces %v", ns)
+					}
+
 					dev, err := extractFromNamespace(k, 4)
 					if err != nil {
 						return nil, err
 					}
 
-					nsCopy := make([]core.NamespaceElement, len(ns))
+					nsCopy := make(core.Namespace, len(ns))
 					copy(nsCopy, ns)
 					nsCopy[4].Value = dev
 
-					metric := plugin.MetricType{
-						Namespace_: nsCopy,
-						Data_:      v,
-						Timestamp_: time.Now(),
-						Tags_:      map[string]string{"dev": dev}}
-					metrics = append(metrics, metric)
+					if v, ok := data[nsCopy.String()]; ok {
+						metrics = append(metrics, plugin.MetricType{
+							Namespace_: nsCopy,
+							Data_:      v,
+							Timestamp_: time.Now(),
+							Tags_:      map[string]string{"dev": dev}})
+					} else {
+						fmt.Fprintf(os.Stdout, "No data found for metric %v", ns.Strings())
+					}
 				}
-				return metrics, nil
 			} else {
 				return nil, fmt.Errorf("Dynamic option * not supported for metric %v", ns)
 			}
@@ -116,6 +128,7 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 			}
 		}
 	}
+
 	return metrics, nil
 }
 
@@ -155,6 +168,7 @@ func (iostat *IOSTAT) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, 
 
 		mts = append(mts, metric)
 	}
+
 	return mts, nil
 }
 

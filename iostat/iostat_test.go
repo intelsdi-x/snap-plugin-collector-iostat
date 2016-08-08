@@ -63,6 +63,81 @@ import (
 // 	{"/intel/linux/iostat/device/ALL/wkB_per_sec", 30.68},
 // }
 
+var refMap = map[string]interface{}{
+	"/intel/linux/iostat/device/sda1/%util":        0,
+	"/intel/linux/iostat/device/sda4/await":        0.11,
+	"/intel/linux/iostat/device/sdb1/r_per_sec":    0.04,
+	"/intel/linux/iostat/device/sda/wrqm_per_sec":  0,
+	"/intel/linux/iostat/device/ALL/avgrq-sz":      45.65,
+	"/intel/linux/iostat/device/sda4/avgrq-sz":     8,
+	"/intel/linux/iostat/device/sdb2/avgqu-sz":     0,
+	"/intel/linux/iostat/device/sda4/avgqu-sz":     0,
+	"/intel/linux/iostat/device/ALL/%util":         0,
+	"/intel/linux/iostat/device/sda/r_per_sec":     0,
+	"/intel/linux/iostat/device/sdb/avgrq-sz":      45.7,
+	"/intel/linux/iostat/device/sda/avgqu-sz":      0,
+	"/intel/linux/iostat/device/ALL/await":         1.82,
+	"/intel/linux/iostat/device/sda3/w_per_sec":    0,
+	"/intel/linux/iostat/device/ALL/avgqu-sz":      0,
+	"/intel/linux/iostat/device/sda3/rrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sdb1/wrqm_per_sec": 0.07,
+	"/intel/linux/iostat/device/sda4/r_per_sec":    0,
+	"/intel/linux/iostat/device/sdb1/rrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sda4/w_per_sec":    0,
+	"/intel/linux/iostat/device/sdb/w_per_sec":     0.64,
+	"/intel/linux/iostat/device/sdb/%util":         0,
+	"/intel/linux/iostat/device/sdb2/%util":        0,
+	"/intel/linux/iostat/device/sdb1/await":        9.81,
+	"/intel/linux/iostat/device/sda1/rrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sdb/wrqm_per_sec":  0.33,
+	"/intel/linux/iostat/device/sdb2/r_per_sec":    0.09,
+	"/intel/linux/iostat/device/sda1/avgqu-sz":     0,
+	"/intel/linux/iostat/device/sdb1/%util":        0,
+	"/intel/linux/iostat/device/sda4/rrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sda/w_per_sec":     0,
+	"/intel/linux/iostat/device/sda2/w_per_sec":    0,
+	"/intel/linux/iostat/device/sda1/w_per_sec":    0,
+	"/intel/linux/iostat/device/sdb1/avgrq-sz":     185.22,
+	"/intel/linux/iostat/device/sda1/await":        0.12,
+	"/intel/linux/iostat/device/ALL/rrqm_per_sec":  0.05,
+	"/intel/linux/iostat/device/sda4/wrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sdb2/w_per_sec":    0.55,
+	"/intel/linux/iostat/device/sda2/avgrq-sz":     7.8,
+	"/intel/linux/iostat/device/sdb2/rrqm_per_sec": 0.02,
+	"/intel/linux/iostat/device/sdb/r_per_sec":     0.13,
+	"/intel/linux/iostat/device/sdb2/avgrq-sz":     19.87,
+	"/intel/linux/iostat/device/sda3/avgqu-sz":     0,
+	"/intel/linux/iostat/device/sda4/%util":        0,
+	"/intel/linux/iostat/device/sda/await":         0.1,
+	"/intel/linux/iostat/device/sda2/wrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sda3/avgrq-sz":     8,
+	"/intel/linux/iostat/device/sdb1/avgqu-sz":     0,
+	"/intel/linux/iostat/device/sdb/rrqm_per_sec":  0.02,
+	"/intel/linux/iostat/device/sdb2/wrqm_per_sec": 0.26,
+	"/intel/linux/iostat/device/sdb1/w_per_sec":    0.08,
+	"/intel/linux/iostat/device/sda2/r_per_sec":    0,
+	"/intel/linux/iostat/device/ALL/w_per_sec":     1.27,
+	"/intel/linux/iostat/device/sdb/await":         1.83,
+	"/intel/linux/iostat/device/sda2/await":        0.08,
+	"/intel/linux/iostat/device/sda2/rrqm_per_sec": 0,
+	"/intel/linux/iostat/device/ALL/wrqm_per_sec":  0.66,
+	"/intel/linux/iostat/device/sda3/r_per_sec":    0,
+	"/intel/linux/iostat/device/ALL/r_per_sec":     0.26,
+	"/intel/linux/iostat/device/sdb/avgqu-sz":      0,
+	"/intel/linux/iostat/device/sda/%util":         0,
+	"/intel/linux/iostat/device/sdb2/await":        0.34,
+	"/intel/linux/iostat/device/sda3/wrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sda/avgrq-sz":      8.06,
+	"/intel/linux/iostat/device/sda1/avgrq-sz":     8.19,
+	"/intel/linux/iostat/device/sda2/avgqu-sz":     0,
+	"/intel/linux/iostat/device/sda3/%util":        0,
+	"/intel/linux/iostat/device/sda2/%util":        0,
+	"/intel/linux/iostat/device/sda3/await":        0.12,
+	"/intel/linux/iostat/device/sda/rrqm_per_sec":  0,
+	"/intel/linux/iostat/device/sda1/wrqm_per_sec": 0,
+	"/intel/linux/iostat/device/sda1/r_per_sec":    0,
+}
+
 var mockCmdOut = `Linux 3.10.0-229.11.1.el7.x86_64 (gklab-108-166) 0/26/2015      _x86_64_        (8 CPU)
 
 			10/26/2015 06:36:57 AM
@@ -191,8 +266,20 @@ func TestIostat(t *testing.T) {
 	Convey("Given valid dynamic metric namespace collect metrics", t, func() {
 		So(func() { iostat.CollectMetrics(dynamicMockMts) }, ShouldNotPanic)
 		result, err := iostat.CollectMetrics(dynamicMockMts)
-		So(len(result), ShouldEqual, 123)
+		So(len(result), ShouldEqual, 72)
 		So(err, ShouldBeNil)
+
+		m := make(map[string]interface{}, len(result))
+		for _, r := range result {
+			m[r.Namespace().String()] = r.Data()
+		}
+
+		So(len(m), ShouldEqual, len(refMap))
+		for key, val := range refMap {
+			v, ok := m[key]
+			So(ok, ShouldBeTrue)
+			So(v, ShouldEqual, val)
+		}
 
 		for _, r := range result {
 			_, ok := r.Data_.(float64)
