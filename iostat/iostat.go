@@ -20,7 +20,10 @@ limitations under the License.
 package iostat
 
 import (
+	"fmt"
 	"io"
+	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -36,9 +39,10 @@ const (
 	// Name of plugin
 	Name = "iostat"
 	// Version of plugin
-	Version = 4
+	Version = 5
 	// Type of plugin
-	Type = plugin.CollectorPluginType
+	Type         = plugin.CollectorPluginType
+	deviceMetric = "device"
 )
 
 type runsCmd interface {
@@ -70,30 +74,101 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 	if err != nil {
 		return nil, err
 	}
-	metrics := make([]plugin.MetricType, len(mts))
-	for i, m := range mts {
 
-		if v, ok := data[m.Namespace().String()]; ok {
-			metrics[i] = plugin.MetricType{
-				Namespace_: m.Namespace(),
-				Data_:      v,
-				Timestamp_: time.Now(),
+	metrics := []plugin.MetricType{}
+
+	for _, mt := range mts {
+		ns := mt.Namespace()
+		if len(ns) < 5 {
+			return nil, fmt.Errorf("Namespace length is too short (len = %d)", len(ns))
+		}
+
+		if ns[4].Value == "*" {
+			if ns[3].Value == deviceMetric {
+				for k, _ := range data {
+					reg := ns[:3].String() + "/device/.*" + ns[5:].String()
+					matched, err := regexp.MatchString(reg, k)
+					if !matched {
+						continue
+					}
+					if err != nil {
+						return nil, fmt.Errorf("Error matching namespaces %v", ns)
+					}
+
+					dev, err := extractFromNamespace(k, 4)
+					if err != nil {
+						return nil, err
+					}
+
+					nsCopy := make(core.Namespace, len(ns))
+					copy(nsCopy, ns)
+					nsCopy[4].Value = dev
+
+					if v, ok := data[nsCopy.String()]; ok {
+						metrics = append(metrics, plugin.MetricType{
+							Namespace_: nsCopy,
+							Data_:      v,
+							Timestamp_: time.Now(),
+							Tags_:      map[string]string{"dev": dev}})
+					} else {
+						fmt.Fprintf(os.Stdout, "No data found for metric %v", ns.Strings())
+					}
+				}
+			} else {
+				return nil, fmt.Errorf("Dynamic option * not supported for metric %v", ns)
+			}
+		} else {
+			if v, ok := data[mt.Namespace().String()]; ok {
+				metrics = append(metrics, plugin.MetricType{
+					Namespace_: mt.Namespace(),
+					Data_:      v,
+					Timestamp_: time.Now()})
+			} else {
+				fmt.Fprintf(os.Stdout, "No data found for metric %v", ns.Strings())
 			}
 		}
 	}
+
 	return metrics, nil
 }
 
 // GetMetricTypes returns the metric types exposed by iostat
 func (iostat *IOSTAT) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error) {
-	keys, _, err := iostat.run([]plugin.MetricType{})
+	namespaces, _, err := iostat.run([]plugin.MetricType{})
 	if err != nil {
 		return nil, err
 	}
-	mts := make([]plugin.MetricType, len(keys))
-	for i, k := range keys {
-		mts[i] = plugin.MetricType{Namespace_: core.NewNamespace(strings.Split(strings.TrimPrefix(k, "/"), "/")...)}
+
+	mts := []plugin.MetricType{}
+	metric := plugin.MetricType{}
+	// List of terminal metric names
+	mList := make(map[string]bool)
+	for _, namespace := range namespaces {
+		ns := core.NewNamespace(strings.Split(strings.TrimPrefix(namespace, "/"), "/")...)
+
+		if len(ns) < 5 {
+			return nil, fmt.Errorf("Namespace length is too short (len = %d)", len(ns))
+		}
+		// terminal metric name
+		mItem := ns[len(ns)-1]
+		if ns[3].Value == deviceMetric {
+			if !mList[mItem.Value] {
+				mList[mItem.Value] = true
+				metric = plugin.MetricType{
+					Namespace_: core.NewNamespace(parser.NsVendor, parser.NsClass, parser.NsType, deviceMetric).
+						AddDynamicElement("device_id", "Device ID").
+						AddStaticElement(mItem.Value),
+					Description_: "dynamic device metric: " + mItem.Value}
+			} else {
+				continue
+			}
+		} else {
+			metric = plugin.MetricType{Namespace_: ns}
+		}
+
+		mts = append(mts, metric)
 	}
+
 	return mts, nil
 }
 
@@ -157,4 +232,13 @@ func getArgs(mts []plugin.MetricType) []string {
 		iostatArgs = append(iostatArgs, "-y", "1", "1")
 	}
 	return iostatArgs
+}
+
+// extractFromNamespace extracts element of index i from namespace string
+func extractFromNamespace(namespace string, i int) (string, error) {
+	ns := core.NewNamespace(strings.Split(strings.TrimPrefix(namespace, "/"), "/")...)
+	if len(ns) < i+1 {
+		return "", fmt.Errorf("Cannot extract element from namespace, index out of range (i = %d)", i)
+	}
+	return ns[i].Value, nil
 }
