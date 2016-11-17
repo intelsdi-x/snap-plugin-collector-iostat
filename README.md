@@ -1,4 +1,4 @@
-# snap collector plugin - iostat
+# Snap collector plugin - iostat
 
 This plugin collects CPU statistics and device I/O statistics based on iostat command tool which is available in every distribution of Linux.
 
@@ -6,7 +6,7 @@ Used for monitoring system input/output device loading by observing the time the
 
 The intention is that data will be collected, aggregated and fed into graphing and analysis plugin that can be used to change system configuration to better balance the input/output load between physical disks.
 
-This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
+This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
 
 
 1. [Getting Started](#getting-started)
@@ -42,30 +42,28 @@ To install sysstat package from the official repositories simply use:
 - For Ubuntu, Debian: `sudo apt-get install sysstat`
 - For CentOS, Fedora: `sudo yum install sysstat`
 
+#### Download the plugin binary:
+
+You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-iostat/releases) page. Download the plugin from the latest release and load it into `snapd` (`/opt/snap/plugins` is the default location for Snap packages).
+
 #### To build the plugin binary:
-This plugin uses snap plugin utilities packages which provide tools for plugin development. 											
-Fork https://github.com/intelsdi-x/snap-plugin-utilities  
-Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
-```
-$ git clone https://github.com/<yourGithubID>/snap-plugin-utilities.git
-```
-Then fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
+
+Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
 $ git clone https://github.com/<yourGithubID>/snap-plugin-collector-iostat.git
 ```
 
-Build the snap iostat plugin by running make within the cloned repo:
+Build the Snap iostat plugin by running make within the cloned repo:
 ```
 $ make
 ```
-This builds the plugin in `/build/rootfs/`
+This builds the plugin in `./build/`
 
 ### Configuration and Usage
-* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
-* Ensure `$SNAP_PATH` is exported  
-`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
+* Set up the [Snap framework](https://github.com/intelsdi-x/snap#getting-started)
+* Load the plugin and create a task, see example in [Examples](https://github.com/intelsdi-x/snap-plugin-collector-iostat#examples).
 
 By default iostat executable binary are searched in the directories named by the PATH environment. 
 Customize path to iostat executable is also possible by setting environment variable `export SNAP_IOSTAT_PATH=/path/to/iostat/bin`
@@ -75,8 +73,8 @@ Customize path to iostat executable is also possible by setting environment vari
 To learn more about this plugin and iostat tool, visit:
 
 * [linux iostat tool] (http://linux.die.net/man/1/iostat)
-* [snap iostat unit test](https://github.com/intelsdi-x/snap-plugin-collector-iostat/blob/master/iostat/iostat_test.go)
-* [snap iostat examples](#examples)
+* [Snap iostat unit test](https://github.com/intelsdi-x/snap-plugin-collector-iostat/blob/master/iostat/iostat_test.go)
+* [Snap iostat examples](#examples)
 
 ### Collected Metrics
 This plugin has the ability to gather the following metrics:
@@ -127,100 +125,39 @@ svctm | The average service time (in milliseconds) for I/O requests issued to th
 ### Examples
 Example running  iostat collector and writing data to file.
 
-In one terminal window, open the snap daemon:
+Ensure [Snap daemon is running](https://github.com/intelsdi-x/snap#running-snap):
+* initd: `service snap-telemetry start`
+* systemd: `systemctl start snap-telemetry`
+* command line: `snapd -l 1 -t 0 &`
+
+Download and load Snap plugins:
 ```
-$ snapd -l 1 -t 0
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-iostat/latest/linux/x86_64/snap-plugin-collector-iostat
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
+$ chmod 755 snap-plugin-*
+$ snapctl plugin load snap-plugin-collector-iostat
+$ snapctl plugin load snap-plugin-publisher-file
 ```
 
-In another terminal window, load iostat plugin for collecting:
-```
-$ snapctl plugin load $SNAP_IOSTAT_PLUGIN_DIR/build/rootfs/snap-plugin-collector-iostat
-Plugin loaded
-Name: iostat
-Version: 1
-Type: collector
-Signed: false
-Loaded Time: Tue, 01 Dec 2015 05:19:48 EST
-```
-See available metrics for your system:
+See all available metrics:
+
 ```
 $ snapctl metric list
 ```
 
-Load file plugin for publishing:
+Download an [example task file](examples/tasks/iostat-file.json) and load it:
 ```
-$ snapctl plugin load $SNAP_DIR/build/plugin/snap-publisher-file
-Plugin loaded
-Name: file
-Version: 3
-Type: publisher
-Signed: false
-Loaded Time: Tue, 01 Dec 2015 05:21:18 EST
-```
-
-Create a task JSON file (exemplary file in examples/tasks/iostat-file.json):  
-```json
-{
-    "version": 1,
-    "schedule": {
-        "type": "simple",
-        "interval": "1s"
-    },
-    "workflow": {
-        "collect": {
-            "metrics": {
-                "/intel/linux/iostat/avg-cpu/%user": {},
-                "/intel/linux/iostat/avg-cpu/%system": {},
-                "/intel/linux/iostat/avg-cpu/%idle": {},
-                "/intel/linux/iostat/avg-cpu/%iowait": {},
-                "/intel/linux/iostat/avg-cpu/%nice": {},
-                "/intel/linux/iostat/avg-cpu/%steal": {},
-                "/intel/linux/iostat/device/*/%util": {},
-                "/intel/linux/iostat/device/*/avgqu-sz": {},
-                "/intel/linux/iostat/device/*/avgrq-sz": {},
-                "/intel/linux/iostat/device/*/await": {},
-                "/intel/linux/iostat/device/*/r_await": {},
-                "/intel/linux/iostat/device/*/r_per_sec": {},
-                "/intel/linux/iostat/device/*/rkB_per_sec": {},
-                "/intel/linux/iostat/device/*/rrqm_per_sec": {},
-                "/intel/linux/iostat/device/*/svctm": {},
-                "/intel/linux/iostat/device/*/w_await": {},
-                "/intel/linux/iostat/device/*/w_per_sec": {},
-                "/intel/linux/iostat/device/*/wkB_per_sec": {},
-                "/intel/linux/iostat/device/*/wrqm_per_sec": {}
-            },
-            "config": {
-                "/intel/linux/iostat": {
-                    "ReportSinceBoot": false
-                }
-            },
-            "process": null,
-            "publish": [
-                {
-                    "plugin_name": "file",
-                    "plugin_version": 3,
-                    "config": {
-                        "file": "/tmp/published_iostat"
-                    }
-                }
-            ]
-        }
-    }
-}
-```
-
-Create a task:
-```
-$ snapctl task create -t $SNAP_IOSTAT_PLUGIN_DIR/examples/tasks/iostat-file.json
+$ curl -sfLO https://raw.githubusercontent.com/intelsdi-x/snap-plugin-collector-iostat/master/examples/tasks/iostat-file.json
+$ snapctl task create -t iostat-file.json
 Using task manifest to create task
 Task created
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 Name: Task-02dd7ff4-8106-47e9-8b86-70067cd0a850
 State: Running
 ```
+This data is published to a file `/tmp/published_iostat` per task specification
 
-See sample output from `snapctl task watch <task_id>`
-
+See realtime output from `snapctl task watch <task_id>` (CTRL+C to exit)
 ```
 $ snapctl task watch 02dd7ff4-8106-47e9-8b86-70067cd0a850
 
@@ -268,9 +205,6 @@ NAMESPACE                                        DATA    TIMESTAMP              
 /intel/linux/iostat/device/sdb2/wkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
 /intel/linux/iostat/device/sdb2/wrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
 ```
-(Keys `ctrl+c` terminate task watcher)
-
-These data are published to file and stored there (in this example in /tmp/published_iostat).
 
 Stop task:
 ```
@@ -284,18 +218,18 @@ As we launch this plugin, we do not have any outstanding requirements for the ne
 and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-iostat/pulls).
 
 ## Community Support
-This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at 
-http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
+This repository is one of **many** plugins in **Snap**, a powerful telemetry framework. See the full project at http://github.com/intelsdi-x/snap.
 
+To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
 
 ## Contributing
-We love contributions! :heart_eyes:
+We love contributions!
 
-There is more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
+There's more than one way to give back, from examples to blogs to code updates. See our recommended process in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
+[Snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
 
 
 ## Acknowledgements
