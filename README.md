@@ -63,7 +63,7 @@ This builds the plugin in `./build/`
 
 ### Configuration and Usage
 * Set up the [Snap framework](https://github.com/intelsdi-x/snap#getting-started)
-* Load the plugin and create a task, see example in [Examples](https://github.com/intelsdi-x/snap-plugin-collector-iostat#examples).
+* Load the plugin and create a task, see example in [Examples](#examples).
 
 By default iostat executable binary are searched in the directories named by the PATH environment. 
 Customize path to iostat executable is also possible by setting environment variable `export SNAP_IOSTAT_PATH=/path/to/iostat/bin`
@@ -73,7 +73,7 @@ Customize path to iostat executable is also possible by setting environment vari
 To learn more about this plugin and iostat tool, visit:
 
 * [linux iostat tool] (http://linux.die.net/man/1/iostat)
-* [Snap iostat unit test](https://github.com/intelsdi-x/snap-plugin-collector-iostat/blob/master/iostat/iostat_test.go)
+* [Snap iostat unit test](iostat/iostat_test.go)
 * [Snap iostat examples](#examples)
 
 ### Collected Metrics
