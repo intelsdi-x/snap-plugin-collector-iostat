@@ -44,7 +44,7 @@ To install sysstat package from the official repositories simply use:
 
 #### Download the plugin binary:
 
-You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-iostat/releases) page. Download the plugin from the latest release and load it into `snapd` (`/opt/snap/plugins` is the default location for Snap packages).
+You can get the pre-built binaries for your OS and architecture from the plugin's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-iostat/releases) page. Download the plugin from the latest release and load it into `snapteld` (`/opt/snap/plugins` is the default location for Snap packages).
 
 #### To build the plugin binary:
 
@@ -128,27 +128,27 @@ Example running  iostat collector and writing data to file.
 Ensure [Snap daemon is running](https://github.com/intelsdi-x/snap#running-snap):
 * initd: `service snap-telemetry start`
 * systemd: `systemctl start snap-telemetry`
-* command line: `snapd -l 1 -t 0 &`
+* command line: `snapteld -l 1 -t 0 &`
 
 Download and load Snap plugins:
 ```
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-iostat/latest/linux/x86_64/snap-plugin-collector-iostat
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
 $ chmod 755 snap-plugin-*
-$ snapctl plugin load snap-plugin-collector-iostat
-$ snapctl plugin load snap-plugin-publisher-file
+$ snaptel plugin load snap-plugin-collector-iostat
+$ snaptel plugin load snap-plugin-publisher-file
 ```
 
 See all available metrics:
 
 ```
-$ snapctl metric list
+$ snaptel metric list
 ```
 
 Download an [example task file](examples/tasks/iostat-file.json) and load it:
 ```
 $ curl -sfLO https://raw.githubusercontent.com/intelsdi-x/snap-plugin-collector-iostat/master/examples/tasks/iostat-file.json
-$ snapctl task create -t iostat-file.json
+$ snaptel task create -t iostat-file.json
 Using task manifest to create task
 Task created
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
@@ -157,9 +157,9 @@ State: Running
 ```
 This data is published to a file `/tmp/published_iostat` per task specification
 
-See realtime output from `snapctl task watch <task_id>` (CTRL+C to exit)
+See realtime output from `snaptel task watch <task_id>` (CTRL+C to exit)
 ```
-$ snapctl task watch 02dd7ff4-8106-47e9-8b86-70067cd0a850
+$ snaptel task watch 02dd7ff4-8106-47e9-8b86-70067cd0a850
 
 Watching Task (02dd7ff4-8106-47e9-8b86-70067cd0a850):
 NAMESPACE                                        DATA    TIMESTAMP                               SOURCE
@@ -208,7 +208,7 @@ NAMESPACE                                        DATA    TIMESTAMP              
 
 Stop task:
 ```
-$ $SNAP_PATH/bin/snapctl task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
+$ $SNAP_PATH/bin/snaptel task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
 Task stopped:
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
