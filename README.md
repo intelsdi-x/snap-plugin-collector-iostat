@@ -31,7 +31,7 @@ In order to use this plugin you need "iostat" to be installed on a Linux target 
 * Linux OS
 * [sysstat package] (#installation)
  * sysstat 10.2 or greater
-* [golang 1.5+](https://golang.org/dl/)  (needed only for building)
+* [golang 1.6+](https://golang.org/dl/)  (needed only for building)
 
 The iostat command-line tool is part of the sysstat package available under the GNU General Public License.
 
@@ -208,7 +208,7 @@ NAMESPACE                                        DATA    TIMESTAMP              
 
 Stop task:
 ```
-$ $SNAP_PATH/bin/snaptel task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
+$ snaptel task stop 02dd7ff4-8106-47e9-8b86-70067cd0a850
 Task stopped:
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
