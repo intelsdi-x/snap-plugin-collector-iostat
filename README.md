@@ -16,6 +16,7 @@ This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
 2. [Documentation](#documentation)
   * [Collected Metrics](#collected-metrics)
   * [Examples](#examples)
+  * [Known limitations](#known-limitations)
   * [Roadmap](#roadmap)
 3. [Community Support](#community-support)
 4. [Contributing](#contributing)
@@ -213,14 +214,22 @@ Task stopped:
 ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ```
 
+### Known limitations
+Expectation of numeric string with a dot as decimal separator.
+
+For another decimal mark, the following error will occur: `Common error: invalid metric value strconv.ParseFloat: parsing "0,00": invalid syntax`. 
+
+To resolve that, the locale numeric configuration (LC_NUMERIC) needs to be changed to set dot as decimal separator.
+
+
 ### Roadmap
 As we launch this plugin, we do not have any outstanding requirements for the next release. If you have a feature request, please add it as an [issue](https://github.com/intelsdi-x/snap-plugin-collector-iostat/issues) 
 and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-iostat/pulls).
 
 ## Community Support
-This repository is one of **many** plugins in **Snap**, a powerful telemetry framework. See the full project at http://github.com/intelsdi-x/snap.
+This repository is one of **many** plugins in **Snap**, a powerful telemetry framework. See the full project at http://github.com/intelsdi-x/snap 
 
-To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
+To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support) or visit [Slack](http://slack.snap-telemetry.io).
 
 ## Contributing
 We love contributions!
