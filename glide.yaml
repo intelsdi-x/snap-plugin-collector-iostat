@@ -1,0 +1,13 @@
+package: github.com/intelsdi-x/snap-plugin-collector-iostat
+import:
+- package: github.com/Sirupsen/logrus
+- package: github.com/intelsdi-x/snap
+  subpackages:
+  - control/plugin
+  - control/plugin/cpolicy
+  - core
+  - core/ctypes
+testImport:
+- package: github.com/smartystreets/goconvey
+  subpackages:
+  - convey
