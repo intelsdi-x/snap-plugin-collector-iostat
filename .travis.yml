@@ -1,5 +1,7 @@
 # File managed by pluginsync
-sudo: false
+sudo: true
+services:
+- docker
 language: go
 go:
 - 1.6.x
@@ -11,9 +13,12 @@ env:
   - GLIDE_HOME="${HOME}/.glide"
   matrix:
   - TEST_TYPE=small
+  - TEST_TYPE=large
   - TEST_TYPE=build
 matrix:
   exclude:
+  - go: 1.6.x
+    env: TEST_TYPE=large
   - go: 1.6.x
     env: TEST_TYPE=build
 before_install:

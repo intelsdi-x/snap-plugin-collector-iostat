@@ -1,0 +1,22 @@
+---
+version: 1
+schedule:
+  type: simple
+  interval: 2s
+workflow:
+  collect:
+    metrics:
+      "/intel/iostat/avg-cpu/%user": {}
+      "/intel/iostat/avg-cpu/%system": {}
+      "/intel/iostat/avg-cpu/%idle": {}
+      "/intel/iostat/avg-cpu/%iowait": {}
+      "/intel/iostat/avg-cpu/%nice": {}
+      "/intel/iostat/avg-cpu/%steal": {}
+      "/intel/iostat/device/*/*": {}
+    config:
+      "/intel/linux/iostat":
+        ReportSinceBoot: false
+    publish:
+    - plugin_name: file
+      config:
+        file: "/tmp/iostat.log"

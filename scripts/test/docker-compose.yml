@@ -1,0 +1,8 @@
+version: '2'
+services:
+  snap:
+    image: intelsdi/snap:xenial_test
+    environment:
+      - SNAP_VERSION=${SNAP_VERSION}
+    volumes:
+      - "${PLUGIN_PATH}:/plugin"
