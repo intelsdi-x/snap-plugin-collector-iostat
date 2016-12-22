@@ -82,7 +82,7 @@ This plugin has the ability to gather the following metrics:
 
 * **CPU statistic**
 
-Metric namespace prefix: /intel/linux/iostat/avg-cpu/
+Metric namespace prefix: /intel/iostat/avg-cpu/
 
 Namespace | Description 
 ------------ | -------------
@@ -97,7 +97,7 @@ Namespace | Description
 
 * **Device statistics**
 
-Metric namespace prefix: /intel/linux/iostat/device/{disk_or_partition}
+Metric namespace prefix: /intel/iostat/device/{disk_or_partition}
 
 Name | Description 
 ------------ | -------------
@@ -164,47 +164,47 @@ $ snaptel task watch 02dd7ff4-8106-47e9-8b86-70067cd0a850
 
 Watching Task (02dd7ff4-8106-47e9-8b86-70067cd0a850):
 NAMESPACE                                        DATA    TIMESTAMP                               SOURCE
-/intel/linux/iostat/avg-cpu/%idle                97.62   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/avg-cpu/%iowait              1.13    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/avg-cpu/%nice                0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/avg-cpu/%steal               0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/avg-cpu/%system              0.5     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/avg-cpu/%user                0.75    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/%util             1.69    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/r_per_sec         0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/rkB_per_sec       0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/rrqm_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/w_per_sec         133     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/wkB_per_sec       50672   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/ALL/wrqm_per_sec      326     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/%util            0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/w_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/wkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sda1/wrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/%util             6.8     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/r_per_sec         0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/rkB_per_sec       0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/rrqm_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/w_per_sec         68      2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/wkB_per_sec       25336   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb/wrqm_per_sec      163     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/%util            6.7     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/w_per_sec        65      2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/wkB_per_sec      25336   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb1/wrqm_per_sec     163     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/%util            0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/w_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/wkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
-/intel/linux/iostat/device/sdb2/wrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%idle                97.62   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%iowait              1.13    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%nice                0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%steal               0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%system              0.5     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/avg-cpu/%user                0.75    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/%util             1.69    2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/r_per_sec         0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/rkB_per_sec       0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/rrqm_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/w_per_sec         133     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/wkB_per_sec       50672   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/ALL/wrqm_per_sec      326     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/%util            0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/w_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/wkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sda1/wrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/%util             6.8     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/r_per_sec         0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/rkB_per_sec       0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/rrqm_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/w_per_sec         68      2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/wkB_per_sec       25336   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb/wrqm_per_sec      163     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/%util            6.7     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/w_per_sec        65      2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/wkB_per_sec      25336   2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb1/wrqm_per_sec     163     2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/%util            0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/r_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/rkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/rrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/w_per_sec        0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/wkB_per_sec      0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
+/intel/iostat/device/sdb2/wrqm_per_sec     0       2015-12-01 05:39:57.79589855 -0500 EST  gklab-108-109-110-111
 ```
 
 Stop task:

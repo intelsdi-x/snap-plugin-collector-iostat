@@ -14,7 +14,6 @@ import (
 
 const (
 	NsVendor = "intel"
-	NsClass  = "linux"
 	NsType   = "iostat"
 
 	defaultEmptyTokenAcceptance = 5
@@ -175,7 +174,7 @@ func joinNamespace(ns []string) string {
 	return "/" + strings.Join(ns, "/")
 }
 
-// createNamespace returns namespace slice of strings composed from: vendor, class, type and ceph-daemon name
+// createNamespace returns namespace slice of strings composed from: vendor, type and ceph-daemon name
 func createNamespace(name string) []string {
-	return []string{NsVendor, NsClass, NsType, name}
+	return []string{NsVendor, NsType, name}
 }

@@ -39,7 +39,7 @@ const (
 	// Name of plugin
 	Name = "iostat"
 	// Version of plugin
-	Version = 5
+	Version = 6
 	// Type of plugin
 	Type         = plugin.CollectorPluginType
 	deviceMetric = "device"
@@ -79,14 +79,14 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 
 	for _, mt := range mts {
 		ns := mt.Namespace()
-		if len(ns) < 5 {
+		if len(ns) < 4 {
 			return nil, fmt.Errorf("Namespace length is too short (len = %d)", len(ns))
 		}
 
-		if ns[4].Value == "*" {
-			if ns[3].Value == deviceMetric {
+		if ns[3].Value == "*" {
+			if ns[2].Value == deviceMetric {
 				for k, _ := range data {
-					reg := ns[:3].String() + "/device/.*" + ns[5:].String()
+					reg := ns[:2].String() + "/device/.*" + ns[4:].String()
 					matched, err := regexp.MatchString(reg, k)
 					if !matched {
 						continue
@@ -95,14 +95,14 @@ func (iostat *IOSTAT) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricTy
 						return nil, fmt.Errorf("Error matching namespaces %v", ns)
 					}
 
-					dev, err := extractFromNamespace(k, 4)
+					dev, err := extractFromNamespace(k, 3)
 					if err != nil {
 						return nil, err
 					}
 
 					nsCopy := make(core.Namespace, len(ns))
 					copy(nsCopy, ns)
-					nsCopy[4].Value = dev
+					nsCopy[3].Value = dev
 
 					if v, ok := data[nsCopy.String()]; ok {
 						metrics = append(metrics, plugin.MetricType{
@@ -146,16 +146,16 @@ func (iostat *IOSTAT) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, 
 	for _, namespace := range namespaces {
 		ns := core.NewNamespace(strings.Split(strings.TrimPrefix(namespace, "/"), "/")...)
 
-		if len(ns) < 5 {
+		if len(ns) < 4 {
 			return nil, fmt.Errorf("Namespace length is too short (len = %d)", len(ns))
 		}
 		// terminal metric name
 		mItem := ns[len(ns)-1]
-		if ns[3].Value == deviceMetric {
+		if ns[2].Value == deviceMetric {
 			if !mList[mItem.Value] {
 				mList[mItem.Value] = true
 				metric = plugin.MetricType{
-					Namespace_: core.NewNamespace(parser.NsVendor, parser.NsClass, parser.NsType, deviceMetric).
+					Namespace_: core.NewNamespace(parser.NsVendor, parser.NsType, deviceMetric).
 						AddDynamicElement("device_id", "Device ID").
 						AddStaticElement(mItem.Value),
 					Description_: "dynamic device metric: " + mItem.Value}
