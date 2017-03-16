@@ -2,18 +2,19 @@
 sudo: false
 language: go
 go:
-- 1.6.3
-- 1.7.3
+- 1.6.x
+- 1.7.x
 env:
   global:
   - ORG_PATH=/home/travis/gopath/src/github.com/intelsdi-x
   - SNAP_PLUGIN_SOURCE=/home/travis/gopath/src/github.com/${TRAVIS_REPO_SLUG}
+  - GLIDE_HOME="${HOME}/.glide"
   matrix:
   - TEST_TYPE=small
   - TEST_TYPE=build
 matrix:
   exclude:
-  - go: 1.6.3
+  - go: 1.6.x
     env: TEST_TYPE=build
 before_install:
 - "[[ -d $SNAP_PLUGIN_SOURCE ]] || mkdir -p $ORG_PATH && ln -s $TRAVIS_BUILD_DIR $SNAP_PLUGIN_SOURCE"
@@ -42,7 +43,7 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-iostat
     branch: master
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.7\.[0-9]+$
 - provider: s3
   access_key_id: AKIAINMB43VSSPFZISAA
   secret_access_key:
@@ -56,7 +57,7 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-iostat
     tags: true
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.7\.[0-9]+$
 - provider: releases
   api_key:
     secure: vRyK2BWRRX48FMTP2Jyb0/da5S+ABc8CisX45xtwpSBUlPZkFjJ4+iZvkgbqYt5oZ+WalDAF40zPdr7v+JxNJ/HczCRjitS9S5f5+Nx75kj6ZaWPDESKi4UchVdwq4gS76b0yd1VxBz55j2uHQ2gPILDtVzq+rfDykipgVGqZ3SfbK+0zxN7oObfyB3Zo4WkXTl563SuRMtx5DsokraawN7BlPYuCAcE6BHf3QGCD3J+7Sbn9VUeWjYknpjZceAy/fPTXuSkvdFfU0Vm1GW9Ywsx0CX9BfRMNZjVL+0hC+e+NZN/+F5pDIxZCzZcqKpGPL7f5YZU5fgqn6nyBCHY5Ka5HInJT2EsSzpFVJTtPuuyNV/3+iIGZFrjbM3jLd5abW5C/G3E+8irrAoOgf4vYUKFN1/RE5UiwjRG69eH5aTgAXqRZfULDxgr1aZsIz7xjjXGd34RuQhxN390gVKy+Kubyq62A8J3W0d99FMs2p+EVxblCb6tHWpfDbI2cUzLffw4PNUhTsu7QpTD2kUPf57qzFWn7Wse2v38zLqoMFrWdizSIgNgnauB08ZkFSIBwHSjMi8/WZBC4SGOX63U+6rerJRFOzbODkWrqJQD+ghIvMIcmL1od8cM8/pCXHJbJIMmzN2Ay1PyyzBDsRSRlgXnmZ9I39632jySzDVHg2w=
@@ -66,4 +67,4 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-iostat
     tags: true
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.7\.[0-9]+$
