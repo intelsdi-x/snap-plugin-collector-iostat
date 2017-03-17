@@ -13,6 +13,7 @@ This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
   * [System Requirements](#system-requirements)
   * [Installation](#installation)
   * [Configuration and Usage](#configuration-and-usage)
+      * [Docker](#docker)
 2. [Documentation](#documentation)
   * [Collected Metrics](#collected-metrics)
   * [Examples](#examples)
@@ -68,6 +69,9 @@ This builds the plugin in `./build/`
 
 By default iostat executable binary are searched in the directories named by the PATH environment. 
 Customize path to iostat executable is also possible by setting environment variable `export SNAP_IOSTAT_PATH=/path/to/iostat/bin`
+
+#### Docker
+* If you are running this plugin in a Docker container, you need to run the container with the flag `--pid host` to map your container's `/proc` to the host proc.
 
 ## Documentation
 
