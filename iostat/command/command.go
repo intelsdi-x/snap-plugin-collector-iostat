@@ -35,3 +35,12 @@ func (c *cmdRunner) Run(cmd string, args []string) (io.Reader, error) {
 		return nil, fmt.Errorf("time out (cmd:%v args:%v)", cmd, args)
 	}
 }
+
+func (c *cmdRunner) Exec(cmd string, args []string) (string, error) {
+	command := exec.Command(cmd, args...)
+	outputBytes, err := command.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(outputBytes[:]), nil
+}

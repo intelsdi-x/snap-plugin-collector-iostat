@@ -47,11 +47,12 @@ const (
 
 type runsCmd interface {
 	Run(cmd string, args []string) (io.Reader, error)
+	Exec(cmd string, args []string) (string, error)
 }
 
 type parses interface {
 	Parse(io.Reader) ([]string, map[string]float64, error)
-	ParseVersion(io.Reader) ([]int64, error)
+	ParseVersion(string) ([]int64, error)
 }
 
 // IOSTAT
@@ -181,16 +182,16 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 
 // Init initializes iostat plugin
 func (iostat *IOSTAT) run(mts []plugin.MetricType) ([]string, map[string]float64, error) {
-	versionReader, err := iostat.cmd.Run("iostat", []string{"-V"})
+	versionString, err := iostat.cmd.Exec("iostat", []string{"-V"})
 	if err != nil {
 		return nil, nil, err
 	}
-	version, err := iostat.parser.ParseVersion(versionReader)
+	version, err := iostat.parser.ParseVersion(versionString)
 	if err != nil {
 		return nil, nil, err
 	}
 	if version[0] < 10 || (version[0] == 10 && version[1] < 2) {
-		return nil, nil, fmt.Errorf("Iostat %d.%d.%d version (required >=10.2.0).", version)
+		return nil, nil, fmt.Errorf("Iostat %d.%d.%d version (required >=10.2.0).", version[0], version[1], version[2])
 	}
 
 	reader, err := iostat.cmd.Run("iostat", getArgs(mts))

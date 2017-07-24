@@ -152,13 +152,11 @@ func (p *parser) parse(data string) error {
 }
 
 // returns version of iostat as [3]int
-func (p *parser) ParseVersion(reader io.Reader) ([]int64, error) {
-	scanner := bufio.NewScanner(reader)
-	scanner.Scan()
-	//verionLine should be like "systat version %d.%d.%d"
-	versionLine := scanner.Text()
+func (p *parser) ParseVersion(versionString string) ([]int64, error) {
+	//verionString should be like "systat version %d.%d.%d \n[...]"
 	//so now versionWords[2] should be version in format "%d.%d.%d"
-	versionWords := strings.Split(versionLine, " ")
+	versionWords := strings.Split(versionString, "\n")
+	versionWords = strings.Split(versionWords[0], " ")
 	if len(versionWords) < 3 {
 		return nil, fmt.Errorf("Iostat version format has changed. Was \"sysstat version %%d.%%d.%%d\"")
 	}
