@@ -47,10 +47,12 @@ const (
 
 type runsCmd interface {
 	Run(cmd string, args []string) (io.Reader, error)
+	Exec(cmd string, args []string) string
 }
 
 type parses interface {
 	Parse(io.Reader) ([]string, map[string]float64, error)
+	ParseVersion(string) ([]int64, error)
 }
 
 // IOSTAT
@@ -180,12 +182,16 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 
 // Init initializes iostat plugin
 func (iostat *IOSTAT) run(mts []plugin.MetricType) ([]string, map[string]float64, error) {
-	// TODO: reminder - remove these todo statements from the README (roadmap section) once
-	//       they are completed
-	// TODO: add validation that we are running sysstat version 10.2.0 or greater else print a
-	//       a warning or otherwise communicate to the user that they are potentially using an
-	//       unsupported/tested configuration
 	// TODO: allow the path and/or name of the command to be overriden through the pluginConfigType
+
+	versionString := iostat.cmd.Exec("iostat", []string{"-V"})
+	version, err := iostat.parser.ParseVersion(versionString)
+	if err != nil {
+		return nil, nil, err
+	}
+	if version[0] < 10 || (version[0] == 10 && version[1] < 2) {
+		return nil, nil, fmt.Errorf("Iostat %d.%d.%d version (required >=10.2.0).", version[0], version[1], version[2])
+	}
 
 	reader, err := iostat.cmd.Run("iostat", getArgs(mts))
 	if err != nil {

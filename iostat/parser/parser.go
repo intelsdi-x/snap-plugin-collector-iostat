@@ -151,6 +151,31 @@ func (p *parser) parse(data string) error {
 	return nil
 }
 
+// returns version of iostat as [3]int
+func (p *parser) ParseVersion(versionString string) ([]int64, error) {
+	//verionString should be like "systat version %d.%d.%d \n[...]"
+	//so now versionWords[2] should be version in format "%d.%d.%d"
+	versionWords := strings.Split(versionString, "\n")
+	versionWords = strings.Split(versionWords[0], " ")
+	if len(versionWords) < 3 {
+		return nil, fmt.Errorf("Iostat version format has changed. Was \"sysstat version %%d.%%d.%%d\"")
+	}
+	//versionStrNums should be []string{"%d","%d","%d"}
+	versionNumsStr := strings.Split(versionWords[2], ".")
+	if len(versionNumsStr) < 3 {
+		return nil, fmt.Errorf("Iostat version format has changed. Was \"sysstat version %%d.%%d.%%d\"")
+	}
+	version := make([]int64, 0)
+	for _, numStr := range versionNumsStr {
+		temp, err := strconv.ParseInt(numStr, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		version = append(version, temp)
+	}
+	return version, nil
+}
+
 // removeEmptyStr removes empty strings from slice
 func removeEmptyStr(slice []string) []string {
 	var result []string
