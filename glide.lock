@@ -1,5 +1,5 @@
 hash: e2b8455d2f47652e91d0350ad7994f4824c6728af81e95c454094734bccbba32
-updated: 2016-11-29T14:26:12.116540185+01:00
+updated: 2017-07-24T10:10:28.700415532+02:00
 imports:
 - name: github.com/intelsdi-x/snap
   version: 668a381e3f603991e35639a02b0492a97cec152f
@@ -17,15 +17,15 @@ imports:
   - pkg/stringutils
   - scheduler/wmap
 - name: github.com/robfig/cron
-  version: 9585fd555638e77bba25f25db5c44b41f264aeb7
+  version: 32d9c273155a0506d27cf73dd1246e86a470997e
 - name: github.com/Sirupsen/logrus
-  version: e400ff7861bce9661cf37c162ce3b7b303baf333
+  version: be52937128b38f1d99787bb476c789e2af1147f1
 - name: golang.org/x/sys
   version: 30237cf4eefd639b184d1f2cb77a581ea0be8947
   subpackages:
   - unix
 - name: gopkg.in/yaml.v2
-  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
+  version: c1cd2254a6dd314c9d73c338c12688c9325d85c6
 testImports:
 - name: github.com/gopherjs/gopherjs
   version: e34a5cd6a1bc7c4fde759f2d3039852fc68b5fcc

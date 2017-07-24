@@ -151,6 +151,33 @@ func (p *parser) parse(data string) error {
 	return nil
 }
 
+// returns version of iostat as [3]int
+func (p *parser) ParseVersion(reader io.Reader) ([]int64, error) {
+	scanner := bufio.NewScanner(reader)
+	scanner.Scan()
+	//verionLine should be like "systat version %d.%d.%d"
+	versionLine := scanner.Text()
+	//so now versionWords[2] should be version in format "%d.%d.%d"
+	versionWords := strings.Split(versionLine, " ")
+	if len(versionWords) < 3 {
+		return nil, fmt.Errorf("Iostat version format has changed. Was \"sysstat version %%d.%%d.%%d\"")
+	}
+	//versionStrNums should be []string{"%d","%d","%d"}
+	versionNumsStr := strings.Split(versionWords[2], ".")
+	if len(versionNumsStr) < 3 {
+		return nil, fmt.Errorf("Iostat version format has changed. Was \"sysstat version %%d.%%d.%%d\"")
+	}
+	version := make([]int64, 0)
+	for _, numStr := range versionNumsStr {
+		temp, err := strconv.ParseInt(numStr, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		version = append(version, temp)
+	}
+	return version, nil
+}
+
 // removeEmptyStr removes empty strings from slice
 func removeEmptyStr(slice []string) []string {
 	var result []string
