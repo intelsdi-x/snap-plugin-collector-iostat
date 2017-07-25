@@ -47,7 +47,7 @@ const (
 
 type runsCmd interface {
 	Run(cmd string, args []string) (io.Reader, error)
-	Exec(cmd string, args []string) (string, error)
+	Exec(cmd string, args []string) string
 }
 
 type parses interface {
@@ -182,10 +182,7 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 
 // Init initializes iostat plugin
 func (iostat *IOSTAT) run(mts []plugin.MetricType) ([]string, map[string]float64, error) {
-	versionString, err := iostat.cmd.Exec("iostat", []string{"-V"})
-	if err != nil {
-		return nil, nil, err
-	}
+	versionString := iostat.cmd.Exec("iostat", []string{"-V"})
 	version, err := iostat.parser.ParseVersion(versionString)
 	if err != nil {
 		return nil, nil, err

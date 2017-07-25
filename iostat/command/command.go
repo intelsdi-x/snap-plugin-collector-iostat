@@ -36,11 +36,8 @@ func (c *cmdRunner) Run(cmd string, args []string) (io.Reader, error) {
 	}
 }
 
-func (c *cmdRunner) Exec(cmd string, args []string) (string, error) {
+func (c *cmdRunner) Exec(cmd string, args []string) string {
 	command := exec.Command(cmd, args...)
-	outputBytes, err := command.Output()
-	if err != nil {
-		return "", err
-	}
-	return string(outputBytes[:]), nil
+	outputBytes, _ := command.CombinedOutput()
+	return string(outputBytes[:])
 }
