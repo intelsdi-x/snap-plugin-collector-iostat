@@ -182,6 +182,8 @@ func (iostat *IOSTAT) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 
 // Init initializes iostat plugin
 func (iostat *IOSTAT) run(mts []plugin.MetricType) ([]string, map[string]float64, error) {
+	// TODO: allow the path and/or name of the command to be overriden through the pluginConfigType
+
 	versionString := iostat.cmd.Exec("iostat", []string{"-V"})
 	version, err := iostat.parser.ParseVersion(versionString)
 	if err != nil {
