@@ -3,6 +3,7 @@ package command
 import (
 	"bytes"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io"
 	"os/exec"
 	"time"
@@ -38,6 +39,9 @@ func (c *cmdRunner) Run(cmd string, args []string) (io.Reader, error) {
 
 func (c *cmdRunner) Exec(cmd string, args []string) string {
 	command := exec.Command(cmd, args...)
-	outputBytes, _ := command.CombinedOutput()
+	outputBytes, err := command.CombinedOutput()
+	if err != nil {
+		log.Error(err)
+	}
 	return string(outputBytes[:])
 }
