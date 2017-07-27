@@ -6,7 +6,6 @@ import (
 	"io"
 	"os/exec"
 	"time"
-	
 	log "github.com/Sirupsen/logrus"
 )
 
