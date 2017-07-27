@@ -3,10 +3,10 @@ package command
 import (
 	"bytes"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io"
 	"os/exec"
 	"time"
-	log "github.com/Sirupsen/logrus"
 )
 
 type cmdRunner struct{}
