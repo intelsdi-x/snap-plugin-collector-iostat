@@ -211,7 +211,7 @@ func getArgs(mts []plugin.Metric) []string {
 	iostatArgs := []string{"-c", "-d", "-p", "-g", "ALL", "-x", "-k", "-t"}
 
 	reportLatest := true
-	if len(mts) > 0 && mts[0].Config != nil && len(mts[0].Config) > 0 {
+	if len(mts) > 0 && mts[0].Config != nil {
 		if m, ok := mts[0].Config.GetBool("ReportSinceBoot"); ok != nil {
 			if m {
 				reportLatest = false
