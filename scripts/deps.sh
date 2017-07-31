@@ -60,7 +60,7 @@ restore_go_dep() {
       (cd "${__proj_dir}" && godep restore)
       ;;
     glide)
-      (cd "${__proj_dir}" && glide install)
+      (cd "${__proj_dir}" && glide cc && glide install)
       ;;
     govendor)
       (cd "${__proj_dir}" && govendor sync)
