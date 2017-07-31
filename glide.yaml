@@ -1,12 +1,12 @@
 package: github.com/intelsdi-x/snap-plugin-collector-iostat
 import:
 - package: github.com/Sirupsen/logrus
-  version: ~1.0.2
+  version: ^1.0.2
 - package: github.com/intelsdi-x/snap-plugin-lib-go
   subpackages:
   - v1/plugin
 testImport:
 - package: github.com/smartystreets/goconvey
-  version: ~1.6.2
+  version: ^1.6.2
   subpackages:
   - convey

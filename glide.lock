@@ -1,5 +1,5 @@
-hash: 57a940327d1e391370dede9d1538dc21f229881f3501772f0303dccba820e6fe
-updated: 2017-07-31T14:53:27.568976329+02:00
+hash: 054d9039671edd68fe42c7b3037f38fc185536b4f303b3cc8a967a89fa1771ad
+updated: 2017-07-31T16:06:31.301012415+02:00
 imports:
 - name: github.com/golang/protobuf
   version: 888eb0692c857ec880338addf316bd662d5e630e
@@ -14,7 +14,7 @@ imports:
 - name: github.com/julienschmidt/httprouter
   version: 975b5c4c7c21c0e3d2764200bf2aa8e34657ae6e
 - name: github.com/Sirupsen/logrus
-  version: ""
+  version: a3f95b5c423586578a4e099b11a46c2479628cac
 - name: github.com/urfave/cli
   version: 4b90d79a682b4bf685762c7452db20f2a676ecb2
 - name: golang.org/x/net
