@@ -24,12 +24,10 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
-
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/parser"
-	"github.com/intelsdi-x/snap/control/plugin"
-	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
-	"github.com/intelsdi-x/snap/core"
+
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 // type Mock struct {
@@ -159,65 +157,65 @@ var mockCmdOut = `Linux 3.10.0-229.11.1.el7.x86_64 (gklab-108-166) 0/26/2015    
 
 		`
 
-var staticMockMts = []plugin.MetricType{
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%user"),
+var staticMockMts = []plugin.Metric{
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%user"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%nice"),
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%nice"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%system"),
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%system"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%iowait"),
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%iowait"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%steal"),
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%steal"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "avg-cpu", "%idle"),
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "avg-cpu", "%idle"),
 	},
 }
 
-var dynamicMockMts = []plugin.MetricType{
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+var dynamicMockMts = []plugin.Metric{
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("%util"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("await"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("rrqm_per_sec"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("wrqm_per_sec"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("r_per_sec"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("w_per_sec"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("avgrq-sz"),
 	},
-	plugin.MetricType{
-		Namespace_: core.NewNamespace("intel", "iostat", "device").
+	plugin.Metric{
+		Namespace: plugin.NewNamespace("intel", "iostat", "device").
 			AddDynamicElement("device_id", "Device ID").
 			AddStaticElement("avgqu-sz"),
 	},
@@ -237,12 +235,12 @@ func (c *mockCmdRunner) Exec(cmd string, args []string) string {
 //////////////////////////////////////////////////////////////////////////////
 
 func TestIostat(t *testing.T) {
-	iostat := &IOSTAT{parser: parser.New(), cmd: &mockCmdRunner{}}
+	iostat := &Iostat{parser: parser.New(), cmd: &mockCmdRunner{}}
 
 	Convey("Given invalid metric namespace collect metrics", t, func() {
-		badMetrics := []plugin.MetricType{
-			plugin.MetricType{
-				Namespace_: core.NewNamespace("intel", "iostat", "device", "sda", "bad"),
+		badMetrics := []plugin.Metric{
+			plugin.Metric{
+				Namespace: plugin.NewNamespace("intel", "iostat", "device", "sda", "bad"),
 			},
 		}
 		So(func() { iostat.CollectMetrics(badMetrics) }, ShouldNotPanic)
@@ -250,8 +248,8 @@ func TestIostat(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		for _, r := range result {
-			So(r.Namespace(), ShouldBeEmpty)
-			So(r.Data(), ShouldBeNil)
+			So(r.Namespace, ShouldBeEmpty)
+			So(r.Data, ShouldBeNil)
 		}
 	})
 
@@ -260,12 +258,12 @@ func TestIostat(t *testing.T) {
 		result, err := iostat.CollectMetrics(staticMockMts)
 		So(len(result), ShouldEqual, 6)
 		So(err, ShouldBeNil)
-		So(result[0].Data(), ShouldEqual, 0.50)
-		So(result[1].Data(), ShouldEqual, 0)
-		So(result[2].Data(), ShouldEqual, 0.13)
-		So(result[3].Data(), ShouldEqual, 0)
-		So(result[4].Data(), ShouldEqual, 0)
-		So(result[5].Data(), ShouldEqual, 99.37)
+		So(result[0].Data, ShouldEqual, 0.50)
+		So(result[1].Data, ShouldEqual, 0)
+		So(result[2].Data, ShouldEqual, 0.13)
+		So(result[3].Data, ShouldEqual, 0)
+		So(result[4].Data, ShouldEqual, 0)
+		So(result[5].Data, ShouldEqual, 99.37)
 	})
 
 	Convey("Given valid dynamic metric namespace collect metrics", t, func() {
@@ -276,7 +274,7 @@ func TestIostat(t *testing.T) {
 
 		m := make(map[string]interface{}, len(result))
 		for _, r := range result {
-			m[r.Namespace().String()] = r.Data()
+			m[r.Namespace.String()] = r.Data
 		}
 
 		So(len(m), ShouldEqual, len(refMap))
@@ -287,19 +285,19 @@ func TestIostat(t *testing.T) {
 		}
 
 		for _, r := range result {
-			_, ok := r.Data_.(float64)
+			_, ok := r.Data.(float64)
 			So(ok, ShouldBeTrue)
 		}
 	})
 
 	Convey("Get metric types", t, func() {
-		mts, err := iostat.GetMetricTypes(plugin.ConfigType{})
+		mts, err := iostat.GetMetricTypes(plugin.Config{})
 		So(err, ShouldBeNil)
 		So(len(mts), ShouldEqual, 19)
 
 		namespaces := []string{}
 		for _, m := range mts {
-			namespaces = append(namespaces, m.Namespace().String())
+			namespaces = append(namespaces, m.Namespace.String())
 		}
 
 		So(namespaces, ShouldContain, "/intel/iostat/avg-cpu/%idle")
@@ -326,6 +324,6 @@ func TestIostat(t *testing.T) {
 	Convey("Get config policy", t, func() {
 		policy, err := iostat.GetConfigPolicy()
 		So(err, ShouldBeNil)
-		So(policy, ShouldResemble, cpolicy.New())
+		So(&policy, ShouldResemble, plugin.NewConfigPolicy())
 	})
 }
