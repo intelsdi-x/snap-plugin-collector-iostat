@@ -30,15 +30,9 @@ import (
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/command"
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat/parser"
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
-	"github.com/intelsdi-x/snap/core"
-	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
-	// Name of plugin
-	Name = "iostat"
-	//Version of plugin
-	Version      = 6
 	deviceMetric = "device"
 )
 
@@ -220,11 +214,13 @@ func getArgs(mts []plugin.Metric) []string {
 	if len(mts) > 0 && mts[0].Config != nil && len(mts[0].Config) > 0 {
 		if m, ok := mts[0].Config["ReportSinceBoot"]; ok {
 			switch val := m.(type) {
-			case ctypes.ConfigValueBool:
-				if val.Value {
+			case plugin.Config:
+				if value, err := val.GetBool("ReportSinceBoot"); err != nil {
 					// return without adding '-y' to the args
 					// produces results since boot
-					reportLatest = false
+					if value {
+						reportLatest = false
+					}
 				}
 			}
 		}
@@ -239,7 +235,7 @@ func getArgs(mts []plugin.Metric) []string {
 
 // extractFromNamespace extracts element of index i from namespace string
 func extractFromNamespace(namespace string, i int) (string, error) {
-	ns := core.NewNamespace(strings.Split(strings.TrimPrefix(namespace, "/"), "/")...)
+	ns := plugin.NewNamespace(strings.Split(strings.TrimPrefix(namespace, "/"), "/")...)
 	if len(ns) < i+1 {
 		return "", fmt.Errorf("Cannot extract element from namespace, index out of range (i = %d)", i)
 	}
