@@ -212,16 +212,9 @@ func getArgs(mts []plugin.Metric) []string {
 
 	reportLatest := true
 	if len(mts) > 0 && mts[0].Config != nil && len(mts[0].Config) > 0 {
-		if m, ok := mts[0].Config["ReportSinceBoot"]; ok {
-			switch val := m.(type) {
-			case plugin.Config:
-				if value, err := val.GetBool("ReportSinceBoot"); err != nil {
-					// return without adding '-y' to the args
-					// produces results since boot
-					if value {
-						reportLatest = false
-					}
-				}
+		if m, ok := mts[0].Config.GetBool("ReportSinceBoot"); ok != nil {
+			if m {
+				reportLatest = false
 			}
 		}
 	}
