@@ -92,8 +92,7 @@ func (iostat *Iostat) CollectMetrics(mts []plugin.Metric) ([]plugin.Metric, erro
 						return nil, err
 					}
 
-					nsCopy := plugin.CopyNamespace(plugin.Namespace{})
-					copy(nsCopy, ns)
+					nsCopy := plugin.CopyNamespace(ns)
 					nsCopy[3].Value = dev
 
 					if v, ok := data[nsCopy.String()]; ok {
