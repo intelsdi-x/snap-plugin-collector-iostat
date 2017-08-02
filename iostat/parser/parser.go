@@ -61,7 +61,7 @@ func (p *parser) Parse(reader io.Reader) ([]string, map[string]float64, error) {
 }
 
 func (p *parser) parse(data string) error {
-	line := removeEmptyStr(strings.Split(strings.TrimSpace(data), " "))
+	line := strings.Fields(data)
 	if len(line) == 0 {
 		// slice "line" is empty
 		p.emptyTokens++
@@ -139,7 +139,7 @@ func (p *parser) parse(data string) error {
 		}
 
 		for i, val := range p.values {
-			v, err := strconv.ParseFloat(strings.TrimSpace(val), 64)
+			v, err := strconv.ParseFloat(strings.TrimSpace(strings.Replace(val, ",", ".", 1)), 64)
 			if err == nil {
 				p.data[p.keys[i]] = v
 			} else {
@@ -174,17 +174,6 @@ func (p *parser) ParseVersion(versionString string) ([]int64, error) {
 		version = append(version, temp)
 	}
 	return version, nil
-}
-
-// removeEmptyStr removes empty strings from slice
-func removeEmptyStr(slice []string) []string {
-	var result []string
-	for _, str := range slice {
-		if str != "" {
-			result = append(result, str)
-		}
-	}
-	return result
 }
 
 // replacePerSec turns "/s" into "_per_sec"
