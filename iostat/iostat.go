@@ -180,7 +180,7 @@ func (iostat *Iostat) run(mts []plugin.Metric) ([]string, map[string]float64, er
 		return nil, nil, err
 	}
 	if version[0] < 10 || (version[0] == 10 && version[1] < 2) {
-		return nil, nil, fmt.Errorf("Iostat %d.%d.%d version (required >=10.2.0)", version[0], version[1], version[2])
+		return nil, nil, fmt.Errorf("This plugin requires iostat in version 10.2.0 or newer (version present={%d.%d.%d})", version[0], version[1], version[2])
 	}
 
 	reader, err := iostat.cmd.Run("iostat", getArgs(mts))
