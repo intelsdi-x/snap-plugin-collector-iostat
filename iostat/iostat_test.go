@@ -138,6 +138,9 @@ var refMap = map[string]interface{}{
 	"/intel/iostat/device/sda1/r_per_sec":    0,
 }
 
+var mockExecOut = `sysstat version 11.2.0
+(C) Sebastien Godard (sysstat <at> orange.fr)
+`
 var mockCmdOut = `Linux 3.10.0-229.11.1.el7.x86_64 (gklab-108-166) 0/26/2015      _x86_64_        (8 CPU)
 
 			10/26/2015 06:36:57 AM
@@ -225,6 +228,10 @@ type mockCmdRunner struct{}
 
 func (c *mockCmdRunner) Run(cmd string, args []string) (io.Reader, error) {
 	return strings.NewReader(mockCmdOut), nil
+}
+
+func (c *mockCmdRunner) Exec(cmd string, args []string) string {
+	return mockExecOut
 }
 
 //////////////////////////////////////////////////////////////////////////////

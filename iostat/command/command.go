@@ -6,6 +6,8 @@ import (
 	"io"
 	"os/exec"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type cmdRunner struct{}
@@ -34,4 +36,13 @@ func (c *cmdRunner) Run(cmd string, args []string) (io.Reader, error) {
 	case <-timer:
 		return nil, fmt.Errorf("time out (cmd:%v args:%v)", cmd, args)
 	}
+}
+
+func (c *cmdRunner) Exec(cmd string, args []string) string {
+	command := exec.Command(cmd, args...)
+	outputBytes, err := command.CombinedOutput()
+	if err != nil {
+		log.Error(err)
+	}
+	return string(outputBytes[:])
 }

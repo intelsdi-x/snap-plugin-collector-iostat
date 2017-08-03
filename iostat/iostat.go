@@ -47,10 +47,12 @@ const (
 
 type runsCmd interface {
 	Run(cmd string, args []string) (io.Reader, error)
+	Exec(cmd string, args []string) string
 }
 
 type parses interface {
 	Parse(io.Reader) ([]string, map[string]float64, error)
+	ParseVersion(string) ([]int64, error)
 }
 
 // IOSTAT
