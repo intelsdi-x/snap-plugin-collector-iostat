@@ -20,33 +20,25 @@ limitations under the License.
 package main
 
 import (
-	"os"
 	"time"
 
-	// Import the snap plugin library
 	"github.com/intelsdi-x/snap-plugin-collector-iostat/iostat"
+	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
+)
 
-	// Import our collector plugin implementation
-	"github.com/intelsdi-x/snap/control/plugin"
+const (
+	pluginName    = "iostat"
+	pluginVersion = 7
 )
 
 // plugin bootstrap
 func main() {
-	p, err := iostat.New()
-	if err != nil {
-		panic(err)
-	}
-	plugin.Start(
-		plugin.NewPluginMeta(
-			iostat.Name,
-			iostat.Version,
-			iostat.Type,
-			[]string{},
-			[]string{plugin.SnapGOBContentType},
-			plugin.Exclusive(true),
-			plugin.CacheTTL(1*time.Second),
-		),
-		p,
-		os.Args[1],
+
+	plugin.StartCollector(
+		iostat.NewIostatCollector(),
+		pluginName,
+		pluginVersion,
+		plugin.Exclusive(true),
+		plugin.CacheTTL(1*time.Second),
 	)
 }
