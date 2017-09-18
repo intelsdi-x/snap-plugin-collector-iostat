@@ -6,18 +6,18 @@ Used for monitoring system input/output device loading by observing the time the
 
 The intention is that data will be collected, aggregated and fed into graphing and analysis plugin that can be used to change system configuration to better balance the input/output load between physical disks.
 
-This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
+This plugin is used in the [Snap framework](http://github.com/intelsdi-x/snap).
 
 
 1. [Getting Started](#getting-started)
-  * [System Requirements](#system-requirements)
-  * [Installation](#installation)
-  * [Configuration and Usage](#configuration-and-usage)
+   * [System Requirements](#system-requirements)
+   * [Installation](#installation)
+   * [Configuration and Usage](#configuration-and-usage)
 2. [Documentation](#documentation)
-  * [Collected Metrics](#collected-metrics)
-  * [Examples](#examples)
-  * [Known limitations](#known-limitations)
-  * [Roadmap](#roadmap)
+   * [Collected Metrics](#collected-metrics)
+   * [Examples](#examples)
+   * [Known limitations](#known-limitations)
+   * [Roadmap](#roadmap)
 3. [Community Support](#community-support)
 4. [Contributing](#contributing)
 5. [License](#license)
@@ -30,8 +30,7 @@ In order to use this plugin you need "iostat" to be installed on a Linux target 
 ### System Requirements
 
 * Linux OS
-* [sysstat package] (#installation)
- * sysstat 10.2 or greater
+* [sysstat package](#installation) in version 10.2 or greater
 * [golang 1.6+](https://golang.org/dl/)  (needed only for building)
 
 The iostat command-line tool is part of the sysstat package available under the GNU General Public License.
@@ -49,7 +48,7 @@ You can get the pre-built binaries for your OS and architecture from the plugin'
 
 #### To build the plugin binary:
 
-Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat
+Fork https://github.com/intelsdi-x/snap-plugin-collector-iostat  
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
@@ -73,55 +72,16 @@ Customize path to iostat executable is also possible by setting environment vari
 
 To learn more about this plugin and iostat tool, visit:
 
-* [linux iostat tool] (http://linux.die.net/man/1/iostat)
+* [linux iostat tool](http://linux.die.net/man/1/iostat)
 * [Snap iostat unit test](iostat/iostat_test.go)
 * [Snap iostat examples](#examples)
 
 ### Collected Metrics
-This plugin has the ability to gather the following metrics:
-
-* **CPU statistic**
-
-Metric namespace prefix: /intel/iostat/avg-cpu/
-
-Namespace | Description 
------------- | -------------
-%user | The percentage of CPU utilization that occurred while executing at the user level (the application usage)
-%nice | The percentage of CPU utilization that occurred while executing at the user level with nice priority
-%system | The percentage of CPU utilization that occurred while executing at the system level (the kernel usage)
-%iowait | The percentage of time that the CPU or CPUs were idle during which the system had an outstanding disk I/O request
-%steal | The percentage of time spent in involuntary wait by the virtual CPU or CPUs while the hypervisor was servicing another virtual processor
-%idle | The percentage of time that the CPU or CPUs were idle and the systems did not have an outstanding disk I/O request
+This plugin has the ability to gather **cpu and device statistics**.   
+List of collected metrics is described in [METRICS.md](METRICS.md).
 
 
-
-* **Device statistics**
-
-Metric namespace prefix: /intel/iostat/device/{disk_or_partition}
-
-Name | Description 
------------- | -------------
-rrqm_per_sec | The number of read requests merged per second queued to the device
-wrqm_per_sec |The number of write requests merged per second queued to the device
-r_per_sec | The number of read requests issued to the device per second
-w_per_sec | The number of write requests issued to the device per second
-rkB_per_sec | The number of kilobytes read from the device per second
-wkB_per_sec | The number of kilobytes written to the device per second
-avgrq-sz | The average size (in sectors) of the requests issued to the device
-avgqu-sz | The average queue length of the requests issued to the device
-await | The average time (milliseconds) for I/O requests issued to the device to be served This includes the time spent by the requests in queue and the time spent servicing them
-r_await | The average time (in milliseconds) for read requests issued to the device to be served which includes the time spent by the requests in queue and the time spent servicing them
-w_await | The average time (in milliseconds) for write requests issued to the device to be served which includes the time spent by the requests in queue and the time spent servicing them
-svctm | The average service time (in milliseconds) for I/O requests issued to the device - Warning! Do not trust this field; it will be removed in a future version of sysstat
-%util | Percentage of CPU time during which I/O requests were issued to the device (bandwidth utilization for the device); device saturation occurs when this values is close to 100%
-
-
-*Notes:*
-
-* The total number of read and write requests issued to the device per second equals the number of transaction per second	
- * tps=r_per_sec+w_per_sec
-* The metrics are sampled over 1 second   
- * If would like the results since boot you can set the config option `ReportSinceBoot` to `true` (see the sample task below)
+**Notes:** If would like the results since boot you can set the config option `ReportSinceBoot` to `true` (see the sample task below)
 
 ### Examples
 Example running  iostat collector and writing data to file.
@@ -217,8 +177,10 @@ ID: 02dd7ff4-8106-47e9-8b86-70067cd0a850
 ### Known limitations
 Expectation of numeric string with a dot as decimal separator.
 
-For another decimal mark, the following error will occur: `Common error: invalid metric value strconv.ParseFloat: parsing "0,00": invalid syntax`. 
-
+For another decimal mark, the following error will occur: 
+```
+Common error: invalid metric value strconv.ParseFloat: parsing "0,00": invalid syntax
+```
 To resolve that, the locale numeric configuration (LC_NUMERIC) needs to be changed to set dot as decimal separator.
 
 
